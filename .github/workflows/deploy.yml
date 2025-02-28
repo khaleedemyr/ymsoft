@@ -1,0 +1,20 @@
+name: Deploy to cPanel
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  web-deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get latest code
+      uses: actions/checkout@v3
+    
+    - name: Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ justussteakhouse.co.id }}
+        username: ${{ justussteakhouse }}
+        password: ${{ SUkSesBerK4H123!! }}
+        server-dir: /public_html/ymsoft
