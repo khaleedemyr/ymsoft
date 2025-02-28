@@ -4,16 +4,19 @@ on:
     branches: [ master ]
 
 jobs:
-  build-and-deploy:
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
 
-      - name: Deploy to cPanel
-        uses: SamKirkland/web-deploy@v1
-        with:
-          target-server: justussteakhouse.co.id
-          remote-user: justussteakhouse
-          private-ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          destination-path: /public_html/ymsoft
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: justussteakhouse.co.id
+        username: justussteakhouse
+        password: SUkSesBerK4H123!!
+        protocol: sftp
+        port: 22
+        server-dir: /public_html/ymsoft/
