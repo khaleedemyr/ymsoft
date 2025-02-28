@@ -1,0 +1,102 @@
+{
+  "resources/fonts/bootstrap-icons.woff": {
+    "file": "icons/bootstrap-icons.woff",
+    "src": "resources/fonts/bootstrap-icons.woff"
+  },
+  "resources/fonts/bootstrap-icons.woff2": {
+    "file": "icons/bootstrap-icons.woff2",
+    "src": "resources/fonts/bootstrap-icons.woff2"
+  },
+  "resources/fonts/remixicon.eot": {
+    "file": "icons/remixicon.eot",
+    "src": "resources/fonts/remixicon.eot"
+  },
+  "resources/fonts/remixicon.svg": {
+    "file": "icons/remixicon.svg",
+    "src": "resources/fonts/remixicon.svg"
+  },
+  "resources/fonts/remixicon.ttf": {
+    "file": "icons/remixicon.ttf",
+    "src": "resources/fonts/remixicon.ttf"
+  },
+  "resources/fonts/remixicon.woff": {
+    "file": "icons/remixicon.woff",
+    "src": "resources/fonts/remixicon.woff"
+  },
+  "resources/fonts/remixicon.woff2": {
+    "file": "icons/remixicon.woff2",
+    "src": "resources/fonts/remixicon.woff2"
+  },
+  "resources/fonts/tabler-icons.eot": {
+    "file": "icons/tabler-icons.eot",
+    "src": "resources/fonts/tabler-icons.eot"
+  },
+  "resources/fonts/tabler-icons.ttf": {
+    "file": "icons/tabler-icons.ttf",
+    "src": "resources/fonts/tabler-icons.ttf"
+  },
+  "resources/fonts/tabler-icons.woff": {
+    "file": "icons/tabler-icons.woff",
+    "src": "resources/fonts/tabler-icons.woff"
+  },
+  "resources/fonts/tabler-icons.woff2": {
+    "file": "icons/tabler-icons.woff2",
+    "src": "resources/fonts/tabler-icons.woff2"
+  },
+  "resources/images/auth/signin-bg.png": {
+    "file": "icons/signin-bg.png",
+    "src": "resources/images/auth/signin-bg.png"
+  },
+  "resources/images/effect-pattern/pattern.png": {
+    "file": "icons/pattern.png",
+    "src": "resources/images/effect-pattern/pattern.png"
+  },
+  "resources/images/file.png": {
+    "file": "icons/file.png",
+    "src": "resources/images/file.png"
+  },
+  "resources/images/flags/us.svg": {
+    "file": "icons/us.svg",
+    "src": "resources/images/flags/us.svg"
+  },
+  "resources/images/modal-bg.png": {
+    "file": "icons/modal-bg.png",
+    "src": "resources/images/modal-bg.png"
+  },
+  "resources/images/sidebar/img-1.jpg": {
+    "file": "icons/img-1.jpg",
+    "src": "resources/images/sidebar/img-1.jpg"
+  },
+  "resources/images/sidebar/img-2.jpg": {
+    "file": "icons/img-2.jpg",
+    "src": "resources/images/sidebar/img-2.jpg"
+  },
+  "resources/images/sidebar/img-3.jpg": {
+    "file": "icons/img-3.jpg",
+    "src": "resources/images/sidebar/img-3.jpg"
+  },
+  "resources/images/sidebar/img-4.jpg": {
+    "file": "icons/img-4.jpg",
+    "src": "resources/images/sidebar/img-4.jpg"
+  },
+  "resources/scss/app.scss": {
+    "file": "css/app.min.css",
+    "isEntry": true,
+    "src": "resources/scss/app.scss"
+  },
+  "resources/scss/bootstrap.scss": {
+    "file": "css/bootstrap.min.css",
+    "isEntry": true,
+    "src": "resources/scss/bootstrap.scss"
+  },
+  "resources/scss/custom.scss": {
+    "file": "css/custom.min.css",
+    "isEntry": true,
+    "src": "resources/scss/custom.scss"
+  },
+  "resources/scss/icons.scss": {
+    "file": "css/icons.min.css",
+    "isEntry": true,
+    "src": "resources/scss/icons.scss"
+  }
+}
