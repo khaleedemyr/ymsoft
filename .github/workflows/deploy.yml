@@ -16,7 +16,7 @@ jobs:
       with:
         server: justussteakhouse.co.id
         username: justussteakhouse
-        password: SUkSesBerK4H123!!
-        protocol: sftp
-        port: 22
+        password: SuksesBerk4h123!!
+        protocol: ftp
+        port: 21
         server-dir: /public_html/ymsoft/
