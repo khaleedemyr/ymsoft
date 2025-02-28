@@ -4,15 +4,16 @@ on:
     branches: [ master ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Deploy to cPanel
-      uses: easingthemes/ssh-deploy@main
-      with:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        REMOTE_HOST: justussteakhouse.co.id
-        REMOTE_USER: justussteakhouse
-        TARGET: /public_html/ymsoft/
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to cPanel
+        uses: SamKirkland/web-deploy@v1
+        with:
+          target-server: justussteakhouse.co.id
+          remote-user: justussteakhouse
+          remote-password: ${{ secrets.CPANEL_PASSWORD }}
+          destination-path: /public_html/ymsoft
