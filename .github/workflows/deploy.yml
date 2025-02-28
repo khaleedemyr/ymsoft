@@ -15,5 +15,5 @@ jobs:
         with:
           target-server: justussteakhouse.co.id
           remote-user: justussteakhouse
-          remote-password: ${{ secrets.CPANEL_PASSWORD }}
+          private-ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
           destination-path: /public_html/ymsoft
