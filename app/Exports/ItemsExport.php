@@ -23,7 +23,7 @@ class ItemsExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     public function properties(): array
     {
         return [
-            'title'          => 'Daftar Item YMSoft',
+            'title'          => 'Daftar Barang YMSoft',
             'created'        => now(),
             'lastModifiedBy' => auth()->user()->nama_lengkap,
         ];
