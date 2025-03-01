@@ -87,6 +87,9 @@ class ItemController extends Controller
         try {
             DB::beginTransaction();
 
+            // Debug request data
+            \Log::info('Request data:', $request->all());
+
             $validatedData = $request->validate([
                 'category_id' => 'required|exists:categories,id',
                 'sub_category_id' => 'required|exists:sub_categories,id',
@@ -98,9 +101,7 @@ class ItemController extends Controller
                 'large_unit_id' => 'required|exists:units,id',
                 'medium_conversion_qty' => 'required|numeric|min:0',
                 'small_conversion_qty' => 'required|numeric|min:0',
-                'prices' => 'required|array',
-                'prices.*.region_id' => 'required|exists:regions,id',
-                'prices.*.price' => 'required|numeric|min:0',
+                'prices' => 'required|string', // Ubah menjadi string karena akan dikirim sebagai JSON
                 'availability_type' => 'required|in:all,region,outlet',
                 'region_ids' => 'required_if:availability_type,region|array',
                 'region_ids.*' => 'exists:regions,id',
@@ -109,6 +110,12 @@ class ItemController extends Controller
                 'specification' => 'nullable|string',
                 'images.*' => 'image|mimes:jpeg,png,jpg|max:2048'
             ]);
+
+            // Parse prices dari JSON string
+            $prices = json_decode($validatedData['prices'], true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \Exception('Invalid prices format');
+            }
 
             $item = Item::create([
                 'category_id' => $validatedData['category_id'],
@@ -126,7 +133,7 @@ class ItemController extends Controller
             ]);
 
             // Simpan harga
-            foreach ($validatedData['prices'] as $price) {
+            foreach ($prices as $price) {
                 $item->prices()->create([
                     'region_id' => $price['region_id'],
                     'price' => $price['price']
@@ -137,18 +144,23 @@ class ItemController extends Controller
             \Log::info('Processing availability with type: ' . $validatedData['availability_type']);
 
             // Simpan availability
+            $item->availabilities()->delete(); // Hapus availability yang lama terlebih dahulu
+            
             if ($validatedData['availability_type'] === 'outlet' && !empty($validatedData['outlet_ids'])) {
-                \Log::info('Creating outlet availabilities for outlets:', $validatedData['outlet_ids']);
+                // Gunakan array_unique untuk menghindari duplikasi
+                $uniqueOutletIds = array_unique($validatedData['outlet_ids']);
                 
-                foreach ($validatedData['outlet_ids'] as $outletId) {
-                    $availability = $item->availabilities()->create([
+                foreach ($uniqueOutletIds as $outletId) {
+                    $item->availabilities()->create([
                         'availability_type' => 'outlet',
                         'outlet_id' => $outletId
                     ]);
-                    \Log::info('Created availability:', $availability->toArray());
                 }
             } elseif ($validatedData['availability_type'] === 'region' && !empty($validatedData['region_ids'])) {
-                foreach ($validatedData['region_ids'] as $regionId) {
+                // Gunakan array_unique untuk menghindari duplikasi
+                $uniqueRegionIds = array_unique($validatedData['region_ids']);
+                
+                foreach ($uniqueRegionIds as $regionId) {
                     $item->availabilities()->create([
                         'availability_type' => 'region',
                         'region_id' => $regionId
@@ -160,18 +172,32 @@ class ItemController extends Controller
                     $item->availabilities()->create([
                         'availability_type' => 'all'
                     ]);
-                } else {
-                    throw new \Exception('Invalid availability configuration');
                 }
             }
 
             // Handle image uploads
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
-                    $path = $image->store('items', 'public');
-                    $item->images()->create([
-                        'path' => $path
-                    ]);
+                    try {
+                        // Generate nama file yang unik
+                        $fileName = uniqid('item_') . '.' . $image->getClientOriginalExtension();
+                        
+                        // Simpan file langsung ke public/storage/items
+                        $path = 'items/' . $fileName;
+                        $image->storeAs('public', $path);
+                        
+                        // Debug log
+                        \Log::info('Image stored at:', ['path' => $path]);
+                        
+                        // Simpan path ke database (tanpa public/)
+                        $item->images()->create([
+                            'path' => $path
+                        ]);
+                        
+                    } catch (\Exception $e) {
+                        \Log::error('Error storing image: ' . $e->getMessage());
+                        throw $e;
+                    }
                 }
             }
 
@@ -246,14 +272,20 @@ class ItemController extends Controller
             // Update availabilities
             $item->availabilities()->delete();
             if ($validatedData['availability_type'] === 'region' && !empty($validatedData['region_ids'])) {
-                foreach ($validatedData['region_ids'] as $regionId) {
+                // Gunakan array_unique untuk menghindari duplikasi
+                $uniqueRegionIds = array_unique($validatedData['region_ids']);
+                
+                foreach ($uniqueRegionIds as $regionId) {
                     $item->availabilities()->create([
                         'availability_type' => 'region',
                         'region_id' => $regionId
                     ]);
                 }
             } elseif ($validatedData['availability_type'] === 'outlet' && !empty($validatedData['outlet_ids'])) {
-                foreach ($validatedData['outlet_ids'] as $outletId) {
+                // Gunakan array_unique untuk menghindari duplikasi
+                $uniqueOutletIds = array_unique($validatedData['outlet_ids']);
+                
+                foreach ($uniqueOutletIds as $outletId) {
                     $item->availabilities()->create([
                         'availability_type' => 'outlet',
                         'outlet_id' => $outletId
@@ -278,14 +310,14 @@ class ItemController extends Controller
                         // Generate nama file yang unik
                         $fileName = uniqid('item_') . '.' . $image->getClientOriginalExtension();
                         
-                        // Simpan file
-                        $path = $image->storeAs('items', $fileName, 'public');
+                        // Simpan file langsung ke public/storage/items
+                        $path = 'items/' . $fileName;
+                        $image->storeAs('public', $path);
                         
                         // Debug log
                         \Log::info('Image stored at:', ['path' => $path]);
                         
-                        // Simpan path ke database dengan forward slash
-                        $path = str_replace('\\', '/', $path);
+                        // Simpan path ke database (tanpa public/)
                         $item->images()->create([
                             'path' => $path
                         ]);

@@ -755,7 +755,8 @@
                                                             <button class="btn btn-sm btn-warning edit-btn"
                                                                     data-item="{{ $item }}"
                                                                     data-prices="{{ json_encode($item->prices) }}"
-                                                                    data-availabilities="{{ json_encode($item->availabilities) }}">
+                                                                    data-availabilities="{{ json_encode($item->availabilities) }}"
+                                                                    data-images="{{ json_encode($item->images) }}">
                                                                 <i class="ri-pencil-line"></i>
                                                             </button>
                                                             <button class="btn btn-sm btn-{{ $item->status == 'active' ? 'danger' : 'success' }} toggle-status-btn"
@@ -1419,73 +1420,72 @@
                 $(this).closest('.image-preview-wrapper').remove();
             });
 
-            // Modify form submission
-            $('#itemForm').on('submit', function(e) {
+            // Tambahkan di bagian script setelah document ready
+            $('#saveBtn').click(function(e) {
                 e.preventDefault();
                 
-                // Gunakan FormData untuk handling file upload
-                let formData = new FormData(this);
-                const itemId = formData.get('id');
+                // Disable tombol untuk mencegah double submit
+                $(this).prop('disabled', true);
                 
-                if (itemId) {
-                    formData.append('_method', 'PUT');
-                }
-
-                // Handle prices
-                let prices = [];
-                $('.price-row').each(function() {
-                    const regionId = $(this).find('select[name="region_id[]"]').val();
-                    const price = $(this).find('input[name="price[]"]').val();
-                    
-                    if (regionId && price) {
-                        prices.push({
-                            region_id: regionId,
-                            price: parseFloat(price.replace(/[^0-9.]/g, ''))
-                        });
-                    }
+                // Ambil form data
+                var form = $('#itemForm')[0];
+                var formData = new FormData(form);
+                
+                // Tambahkan uploadedFiles ke FormData
+                uploadedFiles.forEach((file, index) => {
+                    formData.append('images[]', file);
                 });
-                formData.append('prices', JSON.stringify(prices));
-
-                // Handle availability
-                const availabilityType = $('[name="availability_type"]:checked').val() || 'all';
-                formData.set('availability_type', availabilityType);
-
-                if (availabilityType === 'region') {
-                    let regionIds = [];
-                    $('[name="region_ids[]"]:checked').each(function() {
-                        regionIds.push($(this).val());
+                
+                // Kumpulkan data prices
+                var prices = [];
+                $('select[name="region_id[]"]').each(function(index) {
+                    prices.push({
+                        region_id: $(this).val(),
+                        price: $('input[name="price[]"]').eq(index).val()
                     });
-                    formData.delete('region_ids[]');
-                    regionIds.forEach(id => {
+                });
+                
+                // Tambahkan prices sebagai JSON string
+                formData.set('prices', JSON.stringify(prices));
+
+                // Reset availability data sebelum menambahkan yang baru
+                formData.delete('region_ids[]');
+                formData.delete('outlet_ids[]');
+
+                // Tambahkan data availability
+                var availabilityType = $('input[name="availability_type"]:checked').val();
+                formData.set('availability_type', availabilityType || 'all');
+
+                // Kumpulkan data availability yang baru
+                if (availabilityType === 'region') {
+                    let regionIds = new Set(); // Gunakan Set untuk menghindari duplikasi
+                    $('input[name="region_ids[]"]:checked').each(function() {
+                        regionIds.add($(this).val());
+                    });
+                    // Convert Set ke Array dan tambahkan ke FormData
+                    Array.from(regionIds).forEach(id => {
                         formData.append('region_ids[]', id);
                     });
                 } else if (availabilityType === 'outlet') {
-                    let outletIds = [];
-                    $('[name="outlet_ids[]"]:checked').each(function() {
-                        outletIds.push($(this).val());
+                    let outletIds = new Set(); // Gunakan Set untuk menghindari duplikasi
+                    $('input[name="outlet_ids[]"]:checked').each(function() {
+                        outletIds.add($(this).val());
                     });
-                    formData.delete('outlet_ids[]');
-                    outletIds.forEach(id => {
+                    // Convert Set ke Array dan tambahkan ke FormData
+                    Array.from(outletIds).forEach(id => {
                         formData.append('outlet_ids[]', id);
                     });
                 }
 
-                // Handle images
-                if (uploadedFiles && uploadedFiles.length > 0) {
-                    formData.delete('images[]'); // Hapus images yang ada
-                    uploadedFiles.forEach(file => {
-                        formData.append('images[]', file);
-                    });
-                }
-
-                // Log formData untuk debugging
-                console.log('Files being sent:', uploadedFiles);
-                for (let pair of formData.entries()) {
+                // Debug: Log FormData contents
+                console.log('Form data yang akan dikirim:');
+                for (var pair of formData.entries()) {
                     console.log(pair[0] + ': ' + pair[1]);
                 }
 
+                // Kirim request
                 $.ajax({
-                    url: itemId ? `/items/${itemId}` : '/items',
+                    url: formData.get('id') ? `/items/${formData.get('id')}` : '/items',
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -1494,7 +1494,10 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
-                        if(response.success) {
+                        // Enable tombol
+                        $('#saveBtn').prop('disabled', false);
+                        
+                        if (response.success) {
                             $('#modal-item').modal('hide');
                             Swal.fire({
                                 icon: 'success',
@@ -1508,22 +1511,18 @@
                         }
                     },
                     error: function(xhr) {
-                        console.log('Error response:', xhr.responseJSON);
-                        let errors = xhr.responseJSON?.errors;
-                        let errorMessage = '';
+                        // Enable tombol
+                        $('#saveBtn').prop('disabled', false);
                         
-                        if (errors) {
-                            Object.entries(errors).forEach(([key, messages]) => {
-                                errorMessage += `${key}: ${messages.join(', ')}\n`;
-                            });
-                        } else {
-                            errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan';
+                        console.error('Error:', xhr);
+                        var msg = 'Terjadi kesalahan';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
                         }
-                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: errorMessage
+                            text: msg
                         });
                     }
                 });
@@ -1534,17 +1533,38 @@
                 let item = $(this).data('item');
                 let prices = $(this).data('prices');
                 let availabilities = $(this).data('availabilities');
+                let images = $(this).data('images');
                 
                 console.log('Item data:', item);
                 console.log('Prices data:', prices);
                 console.log('Availabilities data:', availabilities);
+                console.log('Images data:', images);
 
                 // Reset form
                 $('#itemForm')[0].reset();
+                uploadedFiles = []; // Reset uploaded files
+                $('#imagePreviewContainer').empty();
                 
                 // Set item data
                 $('#item_id').val(item.id);
                 $('#category_id').val(item.category_id);
+                
+                // Tampilkan gambar yang sudah ada
+                if (images && images.length > 0) {
+                    $('#imagePreviewContainer').empty();
+                    images.forEach(function(image) {
+                        const imageUrl = getImageUrl(image.path);
+                        const preview = `
+                            <div class="image-preview-wrapper existing-image" data-id="${image.id}">
+                                <img src="${imageUrl}" class="image-preview" alt="Preview">
+                                <div class="image-preview-overlay">
+                                    <i class="ri-delete-bin-line delete-existing-image"></i>
+                                </div>
+                            </div>
+                        `;
+                        $('#imagePreviewContainer').append(preview);
+                    });
+                }
                 
                 // Load sub categories
                 setTimeout(() => {
@@ -2233,12 +2253,13 @@
                     images.forEach(image => {
                         const imgElement = document.createElement('div');
                         imgElement.className = 'image-preview-item';
+                        const imageUrl = getImageUrl(image.path);
                         imgElement.innerHTML = `
-                            <img src="${image.path}" 
+                            <img src="${imageUrl}" 
                                  alt="Preview" 
                                  class="img-fluid rounded" 
                                  style="max-width: 200px; height: 200px; object-fit: cover; cursor: pointer"
-                                 onclick="window.open('${image.path}', '_blank')">
+                                 onclick="window.open('${imageUrl}', '_blank')">
                         `;
                         imageGrid.appendChild(imgElement);
                     });
@@ -2255,6 +2276,44 @@
                 });
             });
         });
+
+        // Fungsi untuk menampilkan gambar dengan path yang benar
+        function getImageUrl(path) {
+            if (!path) return '';
+            
+            // Jika path sudah dimulai dengan http atau https, gunakan langsung
+            if (path.startsWith('http://') || path.startsWith('https://')) {
+                return path;
+            }
+            
+            // Gunakan URL storage yang benar
+            return '{{ url("storage") }}/' + path;
+        }
+
+        // Fungsi untuk menampilkan preview gambar
+        function displayImagePreview(container, imageUrl) {
+            return `
+                <div class="image-preview-wrapper">
+                    <img src="${imageUrl}" class="img-preview" alt="Preview" 
+                         style="max-width: 150px; height: 150px; object-fit: cover;">
+                    <div class="image-preview-overlay">
+                        <button type="button" class="btn btn-sm btn-danger remove-image">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Ketika menampilkan gambar yang sudah ada
+        if (images && images.length > 0) {
+            $('#imagePreviewContainer').empty();
+            images.forEach(function(image) {
+                const imageUrl = getImageUrl(image.path);
+                const preview = displayImagePreview('#imagePreviewContainer', imageUrl);
+                $('#imagePreviewContainer').append(preview);
+            });
+        }
     </script>
 
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
