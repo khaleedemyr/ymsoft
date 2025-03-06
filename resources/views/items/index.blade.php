@@ -525,6 +525,50 @@
         .more-images:hover {
             background-color: rgba(0,0,0,0.7) !important;
         }
+
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-item .delete-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+
+        .image-preview-item:hover .delete-preview {
+            display: flex;
+        }
+
+        .delete-preview i {
+            color: white;
+            font-size: 20px;
+        }
     </style>
 @endsection
 
@@ -626,64 +670,89 @@
                                                 @foreach($items as $key => $item)
                                                 <tr>
                                                     <td>{{ $key + 1 }}</td>
-                                                    <td style="width: 200px;"> <!-- Kurangi sedikit width karena hanya 3 gambar per row -->
+                                                    <td style="width: 200px;">
                                                         <div class="d-flex align-items-start gap-2">
-                                                            @if($item->images->isNotEmpty())
-                                                                <div class="image-preview-container">
-                                                                    <div class="images-grid">
-                                                                        @php
-                                                                            $allImages = $item->images;
-                                                                            $totalImages = $allImages->count();
-                                                                            $firstRow = $allImages->take(3);
-                                                                            $secondRow = $allImages->skip(3)->take(3);
-                                                                        @endphp
+                                                        @if($item->images->isNotEmpty())
+    <div class="image-preview-container">
+        <div class="images-grid" id="images-{{ $item->id }}">
+            @php
+                $allImages = $item->images;
+                $totalImages = $allImages->count();
+                $firstRowImages = $allImages->take(2);
+                $secondRowImages = $allImages->skip(2)->take(1);
+                $remainingImages = $totalImages - 3;
+            @endphp
 
-                                                                        <!-- First row -->
-                                                                        <div class="d-flex gap-1">
-                                                                            @foreach($firstRow as $image)
-                                                                                <a href="{{ url('storage/' . $image->path) }}" 
-                                                                                   target="_blank" 
-                                                                                   class="image-link">
-                                                                                    <img src="{{ url('storage/' . $image->path) }}" 
-                                                                                         class="rounded"
-                                                                                         style="width: 45px; height: 45px; object-fit: cover;"
-                                                                                         alt="{{ $item->name }}"
-                                                                                         loading="lazy">
-                                                                                </a>
-                                                                            @endforeach
-                                                                        </div>
-                                                                        
-                                                                        <!-- Second row only if more than 3 images -->
-                                                                        @if($totalImages > 3)
-                                                                            <div class="d-flex gap-1 mt-1">
-                                                                                @foreach($secondRow as $image)
-                                                                                    <a href="{{ url('storage/' . $image->path) }}" 
-                                                                                       target="_blank" 
-                                                                                       class="image-link">
-                                                                                        <img src="{{ url('storage/' . $image->path) }}" 
-                                                                                             class="rounded"
-                                                                                             style="width: 45px; height: 45px; object-fit: cover;"
-                                                                                             alt="{{ $item->name }}"
-                                                                                             loading="lazy">
-                                                                                    </a>
-                                                                                @endforeach
-                                                                                
-                                                                                @if($totalImages > 6)
-                                                                                    <div class="more-images rounded d-flex align-items-center justify-content-center"
-                                                                                         style="width: 45px; height: 45px; background-color: rgba(0,0,0,0.5);">
-                                                                                        <span class="text-white">+{{ $totalImages - 6 }}</span>
-                                                                                    </div>
-                                                                                @endif
-                                                                            </div>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            @else
-                                                                <div class="rounded bg-light d-flex align-items-center justify-content-center"
-                                                                     style="width: 45px; height: 45px;">
-                                                                    <i class="ri-image-line text-muted"></i>
-                                                                </div>
-                                                            @endif
+            <!-- First row - 2 gambar -->
+            <div class="d-flex gap-1 mb-1">
+                @foreach($firstRowImages as $image)
+                    @php
+                        $imagePath = asset('storage/' . $image->path);
+                    @endphp
+                    <a href="{{ $imagePath }}" 
+                       target="_blank">
+                        <img src="{{ $imagePath }}" 
+                             class="rounded"
+                             style="width: 45px; height: 45px; object-fit: cover;"
+                             alt="{{ $item->name }}"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='{{ asset('assets/images/no-image.png') }}';">
+                    </a>
+                @endforeach
+            </div>
+            
+            <!-- Second row - 1 gambar + show more -->
+            <div class="d-flex gap-1">
+                @foreach($secondRowImages as $image)
+                    @php
+                        $imagePath = asset('storage/' . $image->path);
+                    @endphp
+                    <a href="{{ $imagePath }}" 
+                       target="_blank">
+                        <img src="{{ $imagePath }}" 
+                             class="rounded"
+                             style="width: 45px; height: 45px; object-fit: cover;"
+                             alt="{{ $item->name }}"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='{{ asset('assets/images/no-image.png') }}';">
+                    </a>
+                @endforeach
+                
+                @if($remainingImages > 0)
+                    <!-- Container untuk gambar tambahan -->
+                    <div class="more-images-container" style="display: none;">
+                        @foreach($allImages->skip(3) as $image)
+                            @php
+                                $imagePath = asset('storage/' . $image->path);
+                            @endphp
+                            <a href="{{ $imagePath }}" 
+                               target="_blank">
+                                <img src="{{ $imagePath }}" 
+                                     class="rounded"
+                                     style="width: 45px; height: 45px; object-fit: cover;"
+                                     alt="{{ $item->name }}"
+                                     loading="lazy"
+                                     onerror="this.onerror=null; this.src='{{ asset('assets/images/no-image.png') }}';">
+                            </a>
+                        @endforeach
+                    </div>
+                    
+                    <!-- Tombol toggle -->
+                    <div class="toggle-btn rounded d-flex align-items-center justify-content-center"
+                         style="width: 45px; height: 45px; background-color: rgba(0,0,0,0.5); cursor: pointer;"
+                         onclick="toggleMoreImages('images-{{ $item->id }}', {{ $remainingImages }})">
+                        <span class="text-white">+{{ $remainingImages }}</span>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+@else
+    <div class="rounded bg-light d-flex align-items-center justify-content-center"
+         style="width: 45px; height: 45px;">
+        <i class="ri-image-line text-muted"></i>
+    </div>
+@endif
                                                         </div>
                                                     </td>
                                                     <td>{{ $item->sku }}</td>
@@ -792,8 +861,8 @@
                 </div>
                 <div class="modal-body modal-body-scroll">
                     <form id="itemForm" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" id="item_id" name="id">
+                    @csrf
+                    <input type="hidden" id="item_id" name="id">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -894,7 +963,7 @@
 
                         <div class="mb-3">
                             <label for="images" class="form-label">Gambar Produk</label>
-                            <input type="file" class="form-control" id="images" name="images[]" multiple accept="image/*">
+                            <input type="file" id="images" name="images[]" class="form-control" multiple accept="image/*">
                             <div id="imagePreviewContainer" class="d-flex flex-wrap gap-2 mt-2">
                                 <!-- Preview gambar akan ditampilkan di sini -->
                             </div>
@@ -912,16 +981,16 @@
                                                     <option value="{{ $region->id }}">{{ $region->name }}</option>
                                                 @endforeach
                                             </select>
-                                        </div>
+                            </div>
                                         <div class="col-md-5">
                                             <input type="number" name="price[]" class="form-control" required min="0" step="0.01" placeholder="Harga">
                                         </div>
                                         <div class="col-md-2">
                                             <button type="button" class="btn btn-danger remove-price-row">
                                                 <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                            </button>
+                        </div>
+                    </div>
                                 </div>
                             </div>
                             <div class="text-end mt-3">
@@ -998,8 +1067,8 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                    </div>
+                </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
@@ -1036,7 +1105,7 @@
                     <!-- Availability Section -->
                     <h6 class="mb-3">Availability</h6>
                     <div id="availability-content">
-                    </div>
+                </div>
 
                   
                 <div class="modal-footer">
@@ -1240,6 +1309,36 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Preview Image -->
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Preview Gambar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="imageCarousel" class="carousel slide" data-bs-ride="false">
+                        <div class="carousel-inner">
+                            <!-- Images will be inserted here -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-primary download-image">
+                            <i class="ri-download-line me-1"></i> Download Gambar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -1250,6 +1349,9 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
+        // Definisikan uploadedFiles di scope global
+        var uploadedFiles = [];
+
         $(document).ready(function() {
             // Inisialisasi DataTable
             let table = $('#datatable').DataTable({
@@ -1340,7 +1442,7 @@
                             <input type="number" class="form-control" name="prices[][price]" required min="0" step="0.01" placeholder="@lang('translation.item.price')">
                         </div>
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-sm btn-danger remove-price">
+                            <button type="button" class="btn btn-sm btn-danger remove-price-row">
                                 <i class="ri-delete-bin-line"></i>
                             </button>
                         </div>
@@ -1367,6 +1469,10 @@
                 const files = Array.from(e.target.files);
                 const maxSize = 2048 * 1024; // 2MB
                 
+                // Reset preview container
+                $('#imagePreviewContainer').empty();
+                uploadedFiles = [];
+                
                 files.forEach(file => {
                     if (!file.type.startsWith('image/')) {
                         Swal.fire({
@@ -1391,10 +1497,12 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const preview = `
-                            <div class="image-preview-wrapper">
-                                <img src="${e.target.result}" class="image-preview" alt="Preview">
-                                <div class="image-preview-overlay">
-                                    <i class="ri-delete-bin-line delete-image"></i>
+                            <div class="image-preview-wrapper position-relative" style="width: 100px; height: 100px; margin: 5px;">
+                                <img src="${e.target.result}" class="img-fluid rounded" alt="Preview" 
+                                     style="width: 100%; height: 100%; object-fit: cover;">
+                                <div class="position-absolute top-0 end-0 bg-danger p-1 rounded-circle" 
+                                     style="cursor: pointer;" onclick="removeImage(this)">
+                                    <i class="ri-delete-bin-line text-white" style="font-size: 14px;"></i>
                                 </div>
                             </div>
                         `;
@@ -1403,89 +1511,127 @@
                     reader.readAsDataURL(file);
                 });
                 
-                // Reset input file agar bisa upload file yang sama berulang kali
+                // Reset input file
                 this.value = '';
             });
+
+            // Fungsi untuk menghapus gambar
+            window.removeImage = function(element) {
+                const index = $(element).closest('.image-preview-wrapper').index();
+                uploadedFiles.splice(index, 1);
+                $(element).closest('.image-preview-wrapper').remove();
+            };
 
             // Reset form saat modal ditutup
             $('#modal-item').on('hidden.bs.modal', function() {
                 resetForm();
             });
 
-            // Handle image deletion dengan index yang benar
-            $(document).on('click', '.delete-image', function() {
-                const index = $(this).closest('.image-preview-wrapper').index();
-                uploadedFiles.splice(index, 1);
-                $(this).closest('.image-preview-wrapper').remove();
+            // Tambahkan flag untuk membedakan operasi create dan edit
+            let isEditMode = false;
+
+            // Handler untuk tombol create new
+            $('#createNewBtn').on('click', function() {
+                isEditMode = false;
+                resetForm();
+                $('#modal-item').modal('show');
             });
 
-            // Modify form submission
+            // Modifikasi handler edit button yang sudah ada
+            $(document).on('click', '.edit-btn', function() {
+                isEditMode = true;
+                // ... kode edit yang sudah ada tetap sama ...
+            });
+
+            // Modifikasi form submission
             $('#itemForm').on('submit', function(e) {
                 e.preventDefault();
-                
-                // Gunakan FormData untuk handling file upload
                 let formData = new FormData(this);
-                const itemId = formData.get('id');
-                
-                if (itemId) {
-                    formData.append('_method', 'PUT');
-                }
 
-                // Handle prices
+                // Kumpulkan data prices
                 let prices = [];
-                $('.price-row').each(function() {
-                    const regionId = $(this).find('select[name="region_id[]"]').val();
-                    const price = $(this).find('input[name="price[]"]').val();
+                $('.price-row:visible').each(function() {
+                    const regionId = $(this).find('select[name="prices[][region_id]"]').val();
+                    const price = $(this).find('input[name="prices[][price]"]').val();
                     
                     if (regionId && price) {
-                        prices.push({
+                    prices.push({
                             region_id: regionId,
-                            price: parseFloat(price.replace(/[^0-9.]/g, ''))
+                            price: parseFloat(price)
                         });
                     }
                 });
-                formData.append('prices', JSON.stringify(prices));
+
+                // Validasi minimal satu harga
+                if (prices.length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Minimal harus ada satu harga yang diisi'
+                    });
+                    return;
+                }
+
+                // Set method dan URL berdasarkan mode
+                let url = '{{ route("items.store") }}'; // URL untuk create
+                
+                if (isEditMode) {
+                    const itemId = $('#item_id').val();
+                    if (!itemId) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'ID Item tidak ditemukan'
+                        });
+                        return;
+                    }
+                    url = `/items/${itemId}`; // URL untuk update
+                    formData.append('_method', 'PUT');
+                }
 
                 // Handle availability
-                const availabilityType = $('[name="availability_type"]:checked').val() || 'all';
+                const availabilityType = $('input[name="availability_type"]:checked').val() || 'all';
                 formData.set('availability_type', availabilityType);
 
+                // Handle region/outlet IDs based on availability type
                 if (availabilityType === 'region') {
                     let regionIds = [];
-                    $('[name="region_ids[]"]:checked').each(function() {
+                    $('input[name="region_ids[]"]:checked').each(function() {
                         regionIds.push($(this).val());
                     });
-                    formData.delete('region_ids[]');
-                    regionIds.forEach(id => {
-                        formData.append('region_ids[]', id);
-                    });
+                    formData.append('region_ids', JSON.stringify(regionIds));
                 } else if (availabilityType === 'outlet') {
                     let outletIds = [];
-                    $('[name="outlet_ids[]"]:checked').each(function() {
+                    $('input[name="outlet_ids[]"]:checked').each(function() {
                         outletIds.push($(this).val());
                     });
-                    formData.delete('outlet_ids[]');
-                    outletIds.forEach(id => {
-                        formData.append('outlet_ids[]', id);
-                    });
+                    formData.append('outlet_ids', JSON.stringify(outletIds));
                 }
 
                 // Handle images
                 if (uploadedFiles && uploadedFiles.length > 0) {
-                    formData.delete('images[]'); // Hapus images yang ada
-                    uploadedFiles.forEach(file => {
-                        formData.append('images[]', file);
+                    uploadedFiles.forEach((file, index) => {
+                        formData.append(`images[${index}]`, file);
                     });
                 }
 
-                // Log formData untuk debugging
-                console.log('Files being sent:', uploadedFiles);
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ': ' + pair[1]);
-                }
+                // Debug log
+                console.log('Mode:', isEditMode ? 'Edit' : 'Create');
+                console.log('URL:', url);
+                console.log('Prices:', prices);
 
+                // Show loading
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // AJAX request
                 $.ajax({
-                    url: itemId ? `/items/${itemId}` : '/items',
+                    url: url,
                     method: 'POST',
                     data: formData,
                     processData: false,
@@ -1509,16 +1655,7 @@
                     },
                     error: function(xhr) {
                         console.log('Error response:', xhr.responseJSON);
-                        let errors = xhr.responseJSON?.errors;
-                        let errorMessage = '';
-                        
-                        if (errors) {
-                            Object.entries(errors).forEach(([key, messages]) => {
-                                errorMessage += `${key}: ${messages.join(', ')}\n`;
-                            });
-                        } else {
-                            errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan';
-                        }
+                        let errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan';
                         
                         Swal.fire({
                             icon: 'error',
@@ -1550,7 +1687,7 @@
                 setTimeout(() => {
                     loadSubCategories(item.category_id, item.sub_category_id);
                 }, 100);
-                
+
                 // Set other fields...
                 $('#sku').val(item.sku);
                 $('#name').val(item.name);
@@ -1916,12 +2053,12 @@
             console.log('Jumlah outlet:', $('input[name="outlet_ids[]"]').length);
 
             // Update reset form
-            $('#modal-item').on('hidden.bs.modal', function () {
-                $('#itemForm')[0].reset();
-                $('#item_id').val('');
-                $('#modal-title').text('@lang("translation.item.add")');
-                $('#price-container').empty();
-                $('#sub_category_id').html('<option value="">@lang("translation.item.select_sub_category")</option>');
+        $('#modal-item').on('hidden.bs.modal', function () {
+            $('#itemForm')[0].reset();
+            $('#item_id').val('');
+            $('#modal-title').text('@lang("translation.item.add")');
+            $('#price-container').empty();
+            $('#sub_category_id').html('<option value="">@lang("translation.item.select_sub_category")</option>');
                 $('input[name="region_ids[]"]').prop('checked', false);
                 $('input[name="outlet_ids[]"]').prop('checked', false);
             });
@@ -2040,6 +2177,433 @@
                     $('.content-truncate').show();
                     $('.toggle-content').text('Lihat selengkapnya').data('show-less', false);
                 }
+            });
+
+            // Modifikasi handler save button
+            $('#saveBtn').click(function(e) {
+                e.preventDefault();
+
+                // Ambil itemId di awal
+                const itemId = $('#item_id').val();
+                const isEditMode = !!itemId;
+
+                // Kumpulkan data harga
+                let prices = [];
+                $('.price-row').each(function() {
+                    let regionId = $(this).find('select[name="region_id[]"]').val();
+                    let price = $(this).find('input[name="price[]"]').val();
+                    
+                    if (regionId && price) {
+                        prices.push({
+                            region_id: regionId,
+                            price: parseFloat(price)
+                        });
+                    }
+                });
+
+                // Debug log untuk prices
+                console.log('Collected prices:', prices);
+
+                // Validasi harga
+                if (prices.length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Minimal harus ada satu harga yang diisi'
+                    });
+                    return;
+                }
+
+                // Siapkan FormData
+                var formData = new FormData($('#itemForm')[0]);
+                
+                // Debug log form data sebelum reset
+                console.log('Original form data:');
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ':', pair[1]);
+                }
+
+                // Reset dan format ulang data
+                formData.delete('prices');
+                formData.delete('region_ids');
+                formData.delete('outlet_ids');
+                formData.delete('images[]');
+
+                // Tambahkan semua field yang required
+                formData.append('category_id', $('#category_id').val());
+                formData.append('sub_category_id', $('#sub_category_id').val());
+                formData.append('sku', $('#sku').val());
+                formData.append('name', $('#name').val());
+                formData.append('description', $('#description').val() || '');
+                formData.append('small_unit_id', $('#small_unit_id').val());
+                formData.append('medium_unit_id', $('#medium_unit_id').val());
+                formData.append('large_unit_id', $('#large_unit_id').val());
+                formData.append('medium_conversion_qty', $('#medium_conversion_qty').val());
+                formData.append('small_conversion_qty', $('#small_conversion_qty').val());
+                formData.append('specification', $('#specification').val() || '');
+
+                // Format data prices
+                prices.forEach((price, index) => {
+                    formData.append(`prices[${index}][region_id]`, price.region_id);
+                    formData.append(`prices[${index}][price]`, price.price);
+                });
+
+                // Handle availability
+                let availabilityType = $('input[name="availability_type"]:checked').val() || 'all';
+                formData.append('availability_type', availabilityType);
+
+                if (availabilityType === 'region') {
+                    let regionIds = [];
+                    $('input[name="region_ids[]"]:checked').each(function() {
+                        regionIds.push($(this).val());
+                    });
+                    formData.append('region_ids', JSON.stringify(regionIds));
+                } else if (availabilityType === 'outlet') {
+                    let outletIds = [];
+                    $('input[name="outlet_ids[]"]:checked').each(function() {
+                        outletIds.push($(this).val());
+                    });
+                    formData.append('outlet_ids', JSON.stringify(outletIds));
+                }
+
+                // Handle images
+                if (uploadedFiles && uploadedFiles.length > 0) {
+                    uploadedFiles.forEach((file, index) => {
+                        formData.append(`images[${index}]`, file);
+                    });
+                }
+
+                // Debug log final form data
+                console.log('Final form data:');
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ':', pair[1]);
+                }
+
+                // Set URL dan method
+                let url = isEditMode ? `/items/${itemId}` : '/items';
+                if (isEditMode) {
+                    formData.append('_method', 'PUT');
+                }
+
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    text: 'Mohon tunggu...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // AJAX request
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        $('#modal-item').modal('hide');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sukses',
+                            text: isEditMode ? 'Item berhasil diperbarui' : 'Item berhasil ditambahkan',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function() {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.close();
+                        console.log('Error Response:', xhr.responseJSON);
+                        console.log('Status:', status);
+                        console.log('Error:', error);
+                        
+                        let errorMessage = xhr.responseJSON?.message || error;
+                        if (xhr.responseJSON?.errors) {
+                            errorMessage = Object.values(xhr.responseJSON.errors).join('\n');
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal ' + (isEditMode ? 'memperbarui' : 'menambahkan') + ' item: ' + errorMessage
+                        });
+                    }
+                });
+            });
+
+            // Untuk modal Create
+            $('#createSaveBtn').click(function(e) {
+                e.preventDefault();
+                
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Kumpulkan data harga
+                let pricesData = [];
+                $('#createModal .price-row').each(function() {
+                    let regionId = $(this).find('select[name="region_id[]"]').val();
+                    let price = $(this).find('input[name="price[]"]').val();
+                    
+                    if (regionId && price) {
+                        pricesData.push({
+                            region_id: regionId,
+                            price: price
+                        });
+                    }
+                });
+
+                // Buat FormData baru
+                let formData = new FormData();
+                
+                // Tambahkan data basic
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+                formData.append('category_id', $('#createModal select[name="category_id"]').val());
+                formData.append('sub_category_id', $('#createModal select[name="sub_category_id"]').val());
+                formData.append('sku', $('#createModal input[name="sku"]').val());
+                formData.append('name', $('#createModal input[name="name"]').val());
+                formData.append('description', $('#createModal textarea[name="description"]').val());
+                formData.append('specification', $('#createModal textarea[name="specification"]').val());
+                formData.append('small_unit_id', $('#createModal select[name="small_unit_id"]').val());
+                formData.append('medium_unit_id', $('#createModal select[name="medium_unit_id"]').val());
+                formData.append('large_unit_id', $('#createModal select[name="large_unit_id"]').val());
+                formData.append('medium_conversion_qty', $('#createModal input[name="medium_conversion_qty"]').val());
+                formData.append('small_conversion_qty', $('#createModal input[name="small_conversion_qty"]').val());
+                
+                // Tambahkan prices
+                formData.append('prices', JSON.stringify(pricesData));
+                
+                // Tambahkan availability
+                let availabilityType = $('#createModal input[name="availability_type"]:checked').val() || 'all';
+                formData.append('availability_type', availabilityType);
+                
+                if (availabilityType === 'region') {
+                    let regionIds = [];
+                    $('#createModal input[name="region_ids[]"]:checked').each(function() {
+                        regionIds.push($(this).val());
+                    });
+                    formData.append('region_ids', JSON.stringify(regionIds));
+                } else if (availabilityType === 'outlet') {
+                    let outletIds = [];
+                    $('#createModal input[name="outlet_ids[]"]:checked').each(function() {
+                        outletIds.push($(this).val());
+                    });
+                    formData.append('outlet_ids', JSON.stringify(outletIds));
+                }
+
+                // Tambahkan gambar
+                let fileInput = $('#createModal input[type="file"]')[0];
+                if (fileInput && fileInput.files.length > 0) {
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                        formData.append(`images[]`, fileInput.files[i]);
+                    }
+                }
+
+                // Debug log
+                console.log('Files to upload:', fileInput?.files);
+                
+                $.ajax({
+                    url: '/items',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Item berhasil ditambahkan',
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr.responseJSON);
+                        Swal.fire('Error', 'Gagal menyimpan item: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'), 'error');
+                    }
+                });
+            });
+
+            // Untuk modal Edit
+            $('#editSaveBtn').click(function(e) {
+                e.preventDefault();
+                
+                let itemId = $('#item_id').val();
+                if (!itemId) {
+                    Swal.fire('Error', 'ID item tidak ditemukan', 'error');
+                    return;
+                }
+
+                // Tampilkan loading
+                Swal.fire({
+                    title: 'Menyimpan...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Kumpulkan data harga
+                let pricesData = [];
+                $('#editModal .price-row').each(function() {
+                    let regionId = $(this).find('select[name="region_id[]"]').val();
+                    let price = $(this).find('input[name="price[]"]').val();
+                    
+                    if (regionId && price) {
+                        pricesData.push({
+                            region_id: regionId,
+                            price: price
+                        });
+                    }
+                });
+
+                // Kumpulkan data availability
+                let availabilityType = $('#editModal input[name="availability_type"]:checked').val() || 'all';
+                let regionIds = [];
+                let outletIds = [];
+
+                if (availabilityType === 'region') {
+                    $('#editModal input[name="region_ids[]"]:checked').each(function() {
+                        regionIds.push($(this).val());
+                    });
+                } else if (availabilityType === 'outlet') {
+                    $('#editModal input[name="outlet_ids[]"]:checked').each(function() {
+                        outletIds.push($(this).val());
+                    });
+                }
+
+                // Siapkan data form
+                let formData = {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    _method: 'PUT',
+                    category_id: $('#editModal select[name="category_id"]').val(),
+                    sub_category_id: $('#editModal select[name="sub_category_id"]').val(),
+                    sku: $('#editModal input[name="sku"]').val(),
+                    name: $('#editModal input[name="name"]').val(),
+                    description: $('#editModal textarea[name="description"]').val(),
+                    small_unit_id: $('#editModal select[name="small_unit_id"]').val(),
+                    medium_unit_id: $('#editModal select[name="medium_unit_id"]').val(),
+                    large_unit_id: $('#editModal select[name="large_unit_id"]').val(),
+                    medium_conversion_qty: $('#editModal input[name="medium_conversion_qty"]').val(),
+                    small_conversion_qty: $('#editModal input[name="small_conversion_qty"]').val(),
+                    specification: $('#editModal textarea[name="specification"]').val(),
+                    prices: pricesData,
+                    availability_type: availabilityType,
+                    region_ids: regionIds,
+                    outlet_ids: outletIds
+                };
+
+                // Log data untuk debugging
+                console.log('Data yang akan dikirim:', formData);
+
+                // Kirim request
+                $.ajax({
+                    url: `/items/${itemId}`,
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Item berhasil diperbarui',
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Error:', xhr.responseJSON);
+                        Swal.fire('Error', 'Gagal memperbarui item: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'), 'error');
+                    }
+                });
+            });
+
+            // Fungsi untuk membuka modal preview saat gambar diklik
+            $(document).on('click', '.image-link', function(e) {
+                e.preventDefault();
+                const images = $(this).closest('.images-grid').find('.image-link img').map(function() {
+                    return $(this).attr('src');
+                }).get();
+                
+                const currentIndex = $(this).find('img').index();
+                
+                // Reset carousel
+                $('#imageCarousel .carousel-inner').empty();
+                
+                // Tambahkan semua gambar ke carousel
+                images.forEach((src, index) => {
+                    const isActive = index === currentIndex ? 'active' : '';
+                    const slide = `
+                        <div class="carousel-item ${isActive}">
+                            <img src="${src}" class="d-block mx-auto" style="max-height: 500px; width: auto;">
+                        </div>
+                    `;
+                    $('#imageCarousel .carousel-inner').append(slide);
+                });
+                
+                // Update tombol download dengan URL gambar saat ini
+                updateDownloadButton(images[currentIndex]);
+                
+                // Tampilkan modal
+                $('#imagePreviewModal').modal('show');
+            });
+            
+            // Update tombol download saat carousel bergeser
+            $('#imageCarousel').on('slid.bs.carousel', function() {
+                const currentImage = $('#imageCarousel .carousel-item.active img').attr('src');
+                updateDownloadButton(currentImage);
+            });
+            
+            // Fungsi untuk mengupdate tombol download
+            function updateDownloadButton(imageUrl) {
+                $('.download-image').off('click').on('click', function() {
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    link.download = 'image.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+            
+            // Handle klik pada tombol "+N"
+            $(document).on('click', '.more-images', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Temukan semua gambar dalam grid yang sama
+                const allImages = $(this).closest('.images-grid').find('.image-link img').map(function() {
+                    return $(this).attr('src');
+                }).get();
+                
+                // Reset dan isi carousel
+                $('#imageCarousel .carousel-inner').empty();
+                allImages.forEach((src, index) => {
+                    const slide = `
+                        <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                            <img src="${src}" class="d-block mx-auto" style="max-height: 500px; width: auto;">
+                        </div>
+                    `;
+                    $('#imageCarousel .carousel-inner').append(slide);
+                });
+                
+                // Update tombol download
+                updateDownloadButton(allImages[0]);
+                
+                // Tampilkan modal
+                $('#imagePreviewModal').modal('show');
             });
         });
 
@@ -2223,6 +2787,9 @@
                 if (e.target.closest('.show-images')) {
                     e.preventDefault();
                     const button = e.target.closest('.show-images');
+
+
+                    
                     const images = JSON.parse(button.dataset.images);
                     
                     // Clear existing images
@@ -2255,6 +2822,513 @@
                 });
             });
         });
+
+        // Fungsi untuk preview gambar
+        function handleImagePreview(input) {
+            if (input.files) {
+                $('.preview-container').empty();
+                
+                Array.from(input.files).forEach((file, index) => {
+                    let reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        let previewDiv = $('<div>').addClass('preview-image-container');
+                        let img = $('<img>')
+                            .addClass('preview-image')
+                            .attr('src', e.target.result)
+                            .data('file', file);
+                            
+                        let deleteBtn = $('<button>')
+                            .addClass('delete-preview')
+                            .html('&times;')
+                            .click(function() {
+                                $(this).parent().remove();
+                            });
+                            
+                        previewDiv.append(img).append(deleteBtn);
+                        $('.preview-container').append(previewDiv);
+                    }
+                    
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        // Event listener untuk input file
+        $('input[type="file"]').change(function() {
+            handleImagePreview(this);
+        });
+
+        // Fungsi untuk menghapus preview
+        function removePreview(button) {
+            $(button).parent().remove();
+        }
+
+        // Event listener untuk input file
+        $('input[type="file"]').change(function() {
+            handleImagePreview(this);  // Ganti previewImages dengan handleImagePreview
+        });
+
+        // Fungsi untuk preview dan menyimpan file
+        function handleImagePreview(input, modalType) {
+            const previewContainer = modalType === 'create' ? 
+                $('#createModal #imagePreviewContainer') : 
+                $('#editModal #imagePreviewContainer');
+            
+            if (input.files && input.files.length > 0) {
+                // Simpan file dalam array untuk digunakan saat submit
+                let imageFiles = [];
+                
+                Array.from(input.files).forEach((file, index) => {
+                    imageFiles.push(file);
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = `
+                            <div class="position-relative d-inline-block me-2 mb-2 preview-image-wrapper">
+                                <img src="${e.target.result}" class="img-thumbnail" style="height: 100px;">
+                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                        onclick="removePreview(this, ${index}, '${modalType}')">×</button>
+                            </div>
+                        `;
+                        previewContainer.append(preview);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                // Simpan files ke data container
+                previewContainer.data('files', imageFiles);
+            }
+        }
+
+        // Fungsi untuk menghapus preview
+        function removePreview(button, index, modalType) {
+            const previewContainer = modalType === 'create' ? 
+                $('#createModal #imagePreviewContainer') : 
+                $('#editModal #imagePreviewContainer');
+            
+            // Hapus preview image
+            $(button).closest('.preview-image-wrapper').remove();
+            
+            // Hapus file dari array
+            let files = previewContainer.data('files') || [];
+            files.splice(index, 1);
+            previewContainer.data('files', files);
+        }
+
+        // Event listener untuk input file
+        $('#createModal input[type="file"]').change(function() {
+            handleImagePreview(this, 'create');
+        });
+
+        $('#editModal input[type="file"]').change(function() {
+            handleImagePreview(this, 'edit');
+        });
+
+        // Handler untuk Create
+        $('#createSaveBtn').click(function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Menyimpan...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            let formData = new FormData();
+            
+            // Tambahkan data basic
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            formData.append('category_id', $('#createModal select[name="category_id"]').val());
+            formData.append('sub_category_id', $('#createModal select[name="sub_category_id"]').val());
+            formData.append('sku', $('#createModal input[name="sku"]').val());
+            formData.append('name', $('#createModal input[name="name"]').val());
+            formData.append('description', $('#createModal textarea[name="description"]').val());
+            formData.append('specification', $('#createModal textarea[name="specification"]').val());
+            formData.append('small_unit_id', $('#createModal select[name="small_unit_id"]').val());
+            formData.append('medium_unit_id', $('#createModal select[name="medium_unit_id"]').val());
+            formData.append('large_unit_id', $('#createModal select[name="large_unit_id"]').val());
+            formData.append('medium_conversion_qty', $('#createModal input[name="medium_conversion_qty"]').val());
+            formData.append('small_conversion_qty', $('#createModal input[name="small_conversion_qty"]').val());
+
+            // Tambahkan prices
+            let prices = [];
+            $('#createModal .price-row').each(function() {
+                let regionId = $(this).find('select[name="region_id[]"]').val();
+                let price = $(this).find('input[name="price[]"]').val();
+                if (regionId && price) {
+                    prices.push({
+                        region_id: regionId,
+                        price: price
+                    });
+                }
+            });
+            formData.append('prices', JSON.stringify(prices));
+
+            // Tambahkan availability
+            let availabilityType = $('#createModal input[name="availability_type"]:checked').val() || 'all';
+            formData.append('availability_type', availabilityType);
+
+            if (availabilityType === 'region') {
+                let regionIds = [];
+                $('#createModal input[name="region_ids[]"]:checked').each(function() {
+                    regionIds.push($(this).val());
+                });
+                formData.append('region_ids', JSON.stringify(regionIds));
+            } else if (availabilityType === 'outlet') {
+                let outletIds = [];
+                $('#createModal input[name="outlet_ids[]"]:checked').each(function() {
+                    outletIds.push($(this).val());
+                });
+                formData.append('outlet_ids', JSON.stringify(outletIds));
+            }
+
+            // Tambahkan images
+            const files = $('#createModal #imagePreviewContainer').data('files') || [];
+            files.forEach((file, index) => {
+                formData.append(`images[${index}]`, file);
+            });
+
+            // Debug log
+            console.log('Submitting data with images:', files.length);
+
+            $.ajax({
+                url: '/items',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Item berhasil ditambahkan',
+                        timer: 1500
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseJSON);
+                    Swal.fire('Error', 'Gagal menyimpan item: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'), 'error');
+                }
+            });
+        });
+
+        // Fungsi untuk preview image
+        function handleImagePreview(input, modalType) {
+            const container = modalType === 'create' ? 
+                $('#createModal .image-preview-container') : 
+                $('#editModal .image-preview-container');
+            
+            if (input.files && input.files.length > 0) {
+                // Simpan file yang dipilih
+                const selectedFiles = Array.from(input.files);
+                
+                // Clear container jika ada preview sebelumnya
+                container.empty();
+                
+                selectedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewHtml = `
+                            <div class="position-relative preview-item" data-index="${index}">
+                                <img src="${e.target.result}" class="img-thumbnail" style="height: 100px; width: 100px; object-fit: cover;">
+                                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 remove-preview" 
+                                        data-index="${index}">×</button>
+                            </div>
+                        `;
+                        container.append(previewHtml);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+                
+                // Simpan files ke data container
+                container.data('files', selectedFiles);
+            }
+        }
+
+        // Event untuk remove preview
+        $(document).on('click', '.remove-preview', function() {
+            const container = $(this).closest('.image-preview-container');
+            const index = $(this).data('index');
+            
+            // Hapus preview
+            $(this).closest('.preview-item').remove();
+            
+            // Update files array
+            let files = container.data('files') || [];
+            files.splice(index, 1);
+            container.data('files', files);
+            
+            // Reset input file jika semua preview dihapus
+            if (files.length === 0) {
+                $(this).closest('.form-group').find('input[type="file"]').val('');
+            }
+        });
+
+        // Event listener untuk input file
+        $('.image-input').change(function() {
+            const modalType = $(this).closest('#createModal').length ? 'create' : 'edit';
+            handleImagePreview(this, modalType);
+        });
+
+        // Handler untuk save button (create dan edit)
+        function collectFormData(modalId) {
+            const modal = $(`#${modalId}`);
+            const formData = new FormData();
+            
+            // Tambahkan data basic
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            if (modalId === 'editModal') {
+                formData.append('_method', 'PUT');
+            }
+            
+            // Tambahkan field-field form
+            formData.append('category_id', modal.find('select[name="category_id"]').val());
+            formData.append('sub_category_id', modal.find('select[name="sub_category_id"]').val());
+            formData.append('sku', modal.find('input[name="sku"]').val());
+            formData.append('name', modal.find('input[name="name"]').val());
+            formData.append('description', modal.find('textarea[name="description"]').val());
+            formData.append('specification', modal.find('textarea[name="specification"]').val());
+            formData.append('small_unit_id', modal.find('select[name="small_unit_id"]').val());
+            formData.append('medium_unit_id', modal.find('select[name="medium_unit_id"]').val());
+            formData.append('large_unit_id', modal.find('select[name="large_unit_id"]').val());
+            formData.append('medium_conversion_qty', modal.find('input[name="medium_conversion_qty"]').val());
+            formData.append('small_conversion_qty', modal.find('input[name="small_conversion_qty"]').val());
+
+            // Tambahkan prices
+            let prices = [];
+            modal.find('.price-row').each(function() {
+                let regionId = $(this).find('select[name="region_id[]"]').val();
+                let price = $(this).find('input[name="price[]"]').val();
+                if (regionId && price) {
+                    prices.push({
+                        region_id: regionId,
+                        price: price
+                    });
+                }
+            });
+            formData.append('prices', JSON.stringify(prices));
+
+            // Tambahkan availability
+            let availabilityType = modal.find('input[name="availability_type"]:checked').val() || 'all';
+            formData.append('availability_type', availabilityType);
+
+            if (availabilityType === 'region') {
+                let regionIds = [];
+                modal.find('input[name="region_ids[]"]:checked').each(function() {
+                    regionIds.push($(this).val());
+                });
+                formData.append('region_ids', JSON.stringify(regionIds));
+            } else if (availabilityType === 'outlet') {
+                let outletIds = [];
+                modal.find('input[name="outlet_ids[]"]:checked').each(function() {
+                    outletIds.push($(this).val());
+                });
+                formData.append('outlet_ids', JSON.stringify(outletIds));
+            }
+
+            // Tambahkan images
+            const files = modal.find('.image-preview-container').data('files') || [];
+            files.forEach((file, index) => {
+                formData.append(`images[]`, file);
+            });
+
+            return formData;
+        }
+
+        // Save button handlers
+        $('#createSaveBtn').click(function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Menyimpan...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const formData = collectFormData('createModal');
+            
+            $.ajax({
+                url: '/items',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Item berhasil ditambahkan',
+                        timer: 1500
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseJSON);
+                    Swal.fire('Error', 'Gagal menyimpan item: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'), 'error');
+                }
+            });
+        });
+
+        $('#editSaveBtn').click(function(e) {
+            e.preventDefault();
+            
+            const itemId = $('#item_id').val();
+            if (!itemId) {
+                Swal.fire('Error', 'ID item tidak ditemukan', 'error');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Menyimpan...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const formData = collectFormData('editModal');
+            
+            $.ajax({
+                url: `/items/${itemId}`,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Item berhasil diperbarui',
+                        timer: 1500
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseJSON);
+                    Swal.fire('Error', 'Gagal memperbarui item: ' + (xhr.responseJSON?.message || 'Terjadi kesalahan'), 'error');
+                }
+            });
+        });
+
+        // Tambahkan script untuk handling image preview
+        function handleImagePreview(input, modalType) {
+            const container = $(input).closest('.form-group').find('.image-preview-container');
+            const existingFiles = container.data('files') || [];
+            
+            if (input.files && input.files.length > 0) {
+                // Gabungkan file yang baru dengan yang sudah ada
+                const newFiles = Array.from(input.files);
+                const allFiles = [...existingFiles, ...newFiles];
+                
+                // Update preview untuk semua file
+                container.empty();
+                allFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const previewHtml = `
+                            <div class="image-preview-item" data-index="${index}">
+                                <img src="${e.target.result}" alt="Preview">
+                                <div class="delete-preview">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                            </div>
+                        `;
+                        container.append(previewHtml);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+                
+                // Simpan semua file ke container
+                container.data('files', allFiles);
+            }
+        }
+
+        // Event untuk remove preview
+        $(document).on('click', '.delete-preview', function(e) {
+            e.stopPropagation();
+            
+            const container = $(this).closest('.image-preview-container');
+            const previewItem = $(this).closest('.image-preview-item');
+            const index = previewItem.data('index');
+            
+            // Hapus preview
+            previewItem.remove();
+            
+            // Update files array
+            let files = container.data('files') || [];
+            files.splice(index, 1);
+            container.data('files', files);
+            
+            // Update indices untuk preview items yang tersisa
+            container.find('.image-preview-item').each((idx, item) => {
+                $(item).attr('data-index', idx);
+            });
+        });
+
+        // Event listener untuk input file
+        $('.image-upload').change(function() {
+            handleImagePreview(this);
+        });
+
+        // Modifikasi fungsi save untuk mengirim file yang tersisa
+        function collectFormData(modalType) {
+            const modal = modalType === 'create' ? $('#createModal') : $('#editModal');
+            const formData = new FormData();
+            
+            // ... kode pengumpulan data form lainnya ...
+            
+            // Tambahkan files yang tersisa
+            const container = modal.find('.image-preview-container');
+            const files = container.data('files') || [];
+            
+            files.forEach((file, index) => {
+                formData.append(`images[]`, file);
+            });
+            
+            return formData;
+        }
+
+        function showAllImages(element) {
+            try {
+                const images = JSON.parse(element.dataset.images);
+                if (Array.isArray(images)) {
+                    images.forEach(imagePath => {
+                        window.open(imagePath, '_blank');
+                    });
+                }
+            } catch (error) {
+                console.error('Error opening images:', error);
+            }
+        }
+
+        function toggleMoreImages(containerId, count) {
+            const container = document.getElementById(containerId);
+            const moreContainer = container.querySelector('.more-images-container');
+            const toggleBtn = container.querySelector('.toggle-btn');
+            const isShowing = moreContainer.style.display !== 'none';
+            
+            if (isShowing) {
+                moreContainer.style.display = 'none';
+                toggleBtn.innerHTML = `<span class="text-white">+${count}</span>`;
+            } else {
+                moreContainer.style.display = 'flex';
+                moreContainer.style.gap = '4px';
+                toggleBtn.innerHTML = '<span class="text-white">-</span>';
+            }
+        }
     </script>
 
     <script src="{{ URL::asset('build/js/app.js') }}"></script>

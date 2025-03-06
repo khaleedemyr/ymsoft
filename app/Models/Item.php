@@ -79,4 +79,14 @@ class Item extends Model
     {
         return $this->hasMany(ItemImage::class);
     }
+
+    public function regions()
+    {
+        return $this->hasMany(Region::class);
+    }
+
+    public function outlets()
+    {
+        return $this->hasMany(Outlet::class);
+    }
 } 

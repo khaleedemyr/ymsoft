@@ -100,3 +100,5 @@ Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
 
 Route::get('/categories/{category}/sub-categories', [CategoryController::class, 'getSubCategories']);
+
+Route::delete('items/delete-image/{id}', [ItemController::class, 'deleteImage']);
