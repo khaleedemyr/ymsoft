@@ -75,8 +75,6 @@
                                                     <td>
                                                         <button type="button" 
                                                                 class="btn btn-sm btn-link text-info view-details" 
-                                                                data-bs-toggle="modal" 
-                                                                data-bs-target="#detailModal"
                                                                 data-sale-id="{{ $sale->id }}">
                                                             <i class="ri-eye-line fs-5"></i>
                                                         </button>
@@ -182,11 +180,18 @@
             return date.isBetween(startDate, endDate, 'day', '[]');
         });
 
-        // Handle detail view
-        $('.view-details').click(function() {
+        // Perbaiki handler untuk view detail
+        $(document).on('click', '.view-details', function() {
             var saleId = $(this).data('sale-id');
+            
+            // Reset dan tampilkan loading di modal
             $('#saleDetails').html('<div class="text-center"><div class="spinner-border" role="status"></div></div>');
             
+            // Tampilkan modal
+            var detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+            detailModal.show();
+            
+            // Ambil data
             $.get(`{{ url('sales') }}/${saleId}/details`, function(response) {
                 let content = `
                     <div class="mb-3">
@@ -242,6 +247,11 @@
                     </div>
                 `);
             });
+        });
+
+        // Bersihkan modal saat ditutup
+        $('#detailModal').on('hidden.bs.modal', function() {
+            $('#saleDetails').html('');
         });
 
         function numberFormat(number) {
