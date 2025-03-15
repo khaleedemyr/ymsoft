@@ -40,14 +40,16 @@ class Item extends Model
 
     protected $logName = 'item';
 
+    protected $table = 'items';  // Pastikan nama tabel benar
+
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function subCategory()
     {
-        return $this->belongsTo(SubCategory::class);
+        return $this->belongsTo(SubCategory::class, 'sub_category_id');
     }
 
     public function smallUnit()
@@ -88,5 +90,10 @@ class Item extends Model
     public function outlets()
     {
         return $this->hasMany(Outlet::class);
+    }
+
+    public function medium_unit()
+    {
+        return $this->belongsTo(Unit::class, 'medium_unit_id');
     }
 } 

@@ -1397,32 +1397,26 @@
             $('#statusToggle').prop('checked', initialShowActive).trigger('change');
 
             // Load sub categories when category is selected
-            $('#category_id').change(function() {
-                let categoryId = $(this).val();
-                if (categoryId) {
+            $('#category_id').on('change', function() {
+                var categoryId = $(this).val();
+                if(categoryId) {
                     $.ajax({
-                        url: "{{ route('items.get-sub-categories') }}",
+                        url: `/categories/${categoryId}/sub-categories`,  // Pastikan URL ini sesuai
                         type: 'GET',
-                        data: { category_id: categoryId },
                         success: function(data) {
-                            let options = '<option value="">@lang("translation.item.select_sub_category")</option>';
-                            data.forEach(function(subCategory) {
-                                options += `<option value="${subCategory.id}">${subCategory.name}</option>`;
+                            $('#sub_category_id').empty();
+                            $('#sub_category_id').append('<option value="">Pilih Sub Kategori</option>');
+                            $.each(data, function(key, value) {
+                                $('#sub_category_id').append('<option value="'+ value.id +'">'+ value.name +'</option>');
                             });
-                            $('#sub_category_id').html(options);
                         },
-                        error: function(xhr, status, error) {
-                            console.error('Error:', error);
-                            console.error('Response:', xhr.responseText);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: xhr.responseJSON?.message || 'Gagal mengambil data sub kategori'
-                            });
+                        error: function(xhr) {
+                            console.error('Error loading sub categories:', xhr);
                         }
                     });
                 } else {
-                    $('#sub_category_id').html('<option value="">@lang("translation.item.select_sub_category")</option>');
+                    $('#sub_category_id').empty();
+                    $('#sub_category_id').append('<option value="">Pilih Sub Kategori</option>');
                 }
             });
 

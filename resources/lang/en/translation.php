@@ -75,7 +75,6 @@ return [
     "companies" => "Companies",
     "counter" => "Counter",
     "deals" => "Deals",
-    "leads" => "Leads",
     "transactions" => "Transactions",
     "buy-sell" => "Buy & Sell",
     "my-wallet" => "My Wallet",
@@ -410,36 +409,310 @@ return [
                 "error" => "Failed to export data to Excel"
             ]
             ],
-        // Tambahkan di bagian reports
-"rekap_fj" => [
-    "title" => "Recap FJ Report",
-    "filter" => [
-        "start_date" => "Start Date",
-        "end_date" => "End Date",
-        "search" => "Search customer...",
-        "load" => "Load Report"
+        "rekap_fj" => [
+            "title" => "Recap FJ Report",
+            "filter" => [
+                "start_date" => "Start Date",
+                "end_date" => "End Date",
+                "search" => "Search customer...",
+                "load" => "Load Report"
+            ],
+            "table" => [
+                "customer" => "Customer",
+                "main_kitchen" => "Main Kitchen",
+                "main_store" => "Main Store",
+                "chemical" => "Chemical",
+                "stationary" => "Stationary",
+                "marketing" => "Marketing",
+                "line_total" => "Line Total",
+                "total" => "Total"
+            ],
+            "no_data" => "No data available",
+            "please_select_date" => "Please select start and end date first",
+            "loading" => "Loading data...",
+            "error_loading" => "Failed to load report data",
+            "export" => [
+                "title" => "Export Excel",
+                "success" => "Data has been exported to Excel successfully",
+                "error" => "Failed to export data to Excel"
+            ]
+        ],
     ],
-    "table" => [
-        "customer" => "Customer",
-        "main_kitchen" => "Main Kitchen",
-        "main_store" => "Main Store",
-        "chemical" => "Chemical",
-        "stationary" => "Stationary",
-        "marketing" => "Marketing",
-        "line_total" => "Line Total",
-        "total" => "Total"
+
+    "menu_management" => [
+        "title" => "Menu Management",
+        "list" => "Menu List",
+        "add" => "Add Menu",
+        "edit" => "Edit Menu",
+        "name" => "Menu Name",
+        "slug" => "Slug",
+        "icon" => "Icon",
+        "route" => "Route",
+        "parent_menu" => "Parent Menu",
+        "select_parent" => "Select Parent Menu",
+        "order" => "Order",
+        "action" => "Action",
+        "save" => "Save",
+        "close" => "Close",
+        "search_placeholder" => "Search menu...",
+        "selected_icon" => "Selected Icon",
+        "search_icon" => "Search Icon",
+        "success_add" => "Menu has been added successfully",
+        "success_edit" => "Menu has been updated successfully",
+        "success_delete" => "Menu has been deleted successfully",
+        "success_status_change" => "Menu status has been updated successfully",
+        "show_active" => "Show Active Menus",
+        "show_inactive" => "Show Inactive Menus",
+        "confirm_deactivate" => "Are you sure want to deactivate this menu?",
+        "confirm_activate" => "Are you sure want to activate this menu?"
     ],
-    "no_data" => "No data available",
-    "please_select_date" => "Please select start and end date first",
-    "loading" => "Loading data...",
-    "error_loading" => "Failed to load report data",
-    "export" => [
-        "title" => "Export Excel",
-        "success" => "Data has been exported to Excel successfully",
-        "error" => "Failed to export data to Excel"
+
+    "user_management" => [
+        "title" => "User Management",
+        "users" => "Users",
+        "roles" => "Roles",
+        "menus" => "Menus"
+    ],
+
+    "role_management" => [
+        "title" => "Role Management",
+        "list" => "Role List",
+        "add" => "Add Role",
+        "edit" => "Edit Role",
+        "name" => "Role Name",
+        "description" => "Description",
+        "permissions" => "Permissions",
+        "action" => "Action",
+        "save" => "Save",
+        "close" => "Close",
+        "search_placeholder" => "Search role...",
+        "success_add" => "Role has been added successfully",
+        "success_edit" => "Role has been updated successfully",
+        "success_delete" => "Role has been deleted successfully",
+        "success_status_change" => "Role status has been updated successfully",
+        "show_active" => "Show Active Roles",
+        "show_inactive" => "Show Inactive Roles",
+        "confirm_deactivate" => "Are you sure want to deactivate this role?",
+        "confirm_activate" => "Are you sure want to activate this role?",
+        "set_role" => "Set Role",
+        "select_role" => "Select Role",
+        "success_set_role" => "Role has been set successfully"
+    ],
+
+    "user" => [
+        "title" => "User Management",
+        "list" => "User List",
+        "name" => "Full Name",
+        "email" => "Email",
+        "position" => "Position",
+        "division" => "Division",
+        "outlet" => "Outlet",
+        "role" => "Role",
+        "action" => "Action",
+        "set_role" => "Set User Role",
+        "select_role" => "Select Role",
+        "save" => "Save",
+        "close" => "Close",
+        "search_placeholder" => "Search user...",
+        "success" => "Success",
+        "error" => "Error",
+        "error_message" => "An error occurred",
+        "success_set_role" => "User role has been updated successfully"
+    ],
+
+    "transaction" => [
+        "title" => "Transaction",
+        "sales" => [
+            "title" => "Sales"
+        ],
+        "floor_order" => [
+            "title" => "Floor Order"
+        ]
+    ],
+
+    "master_data" => "Master Data",
+    "category" => [
+        "title" => "Categories"
+    ],
+    "subcategory" => [
+        "title" => "Sub Categories"
+    ],
+    "unit" => [
+        "title" => "Units"
+    ],
+    "region" => [
+        "title" => "Regions"
+    ],
+    "item" => [
+        "title" => "Items"
+    ],
+    "warehouse" => [
+        "title" => "Warehouses"
+    ],
+    "customer" => [
+        "title" => "Customers"
+    ],
+
+    "reports" => [
+        "title" => "Reports",
+        "fj" => [
+            "title" => "FJ Report"
+        ],
+        "rekap_fj" => [
+            "title" => "Rekap FJ Report"
+        ]
+    ],
+
+    'floor_order' => [
+        'title' => 'Floor Order',
+        'list' => 'Floor Order List',
+        'add' => 'Add Floor Order',
+        'edit' => 'Edit Floor Order',
+        'create' => 'Create Floor Order',
+        'view' => 'View Floor Order',
+        'status' => [
+            'draft' => 'Draft',
+            'saved' => 'Saved',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled'
+        ],
+        'success_add' => 'Floor order has been successfully added',
+        'success_update' => 'Floor order has been successfully updated',
+        'success_delete' => 'Floor order has been successfully deleted',
+        'confirm_delete' => 'Are you sure you want to delete this floor order?',
+        'no_data' => 'No floor orders found',
+        'index' => [
+            'title' => 'Floor Order',
+            'subtitle' => 'Floor Order List',
+            'outlet_not_found' => 'Outlet not found',
+            'search_placeholder' => 'Search floor order...',
+            'filter' => 'Filter',
+            'refresh' => 'Refresh',
+            'add_new' => 'Add New',
+            'table' => [
+                'no' => 'No',
+                'fo_number' => 'Floor Order Number',
+                'order_date' => 'Order Date',
+                'order_time' => 'Order Time',
+                'warehouse' => 'Warehouse',
+                'created_by' => 'Created By',
+                'total_amount' => 'Total Amount',
+                'status' => 'Status',
+                'action' => 'Action',
+                'grand_total' => 'Grand Total'
+            ],
+            'status' => [
+                'draft' => 'Draft',
+                'saved' => 'Saved',
+                'completed' => 'Completed',
+                'cancelled' => 'Cancelled'
+            ],
+            'action' => [
+                'edit' => 'Edit',
+                'save' => 'Save',
+                'view' => 'View',
+                'delete' => 'Delete',
+                'cancel' => 'Cancel'
+            ],
+            'confirm' => [
+                'save_title' => 'Confirmation',
+                'save_text' => 'Are you sure you want to change Floor Order :number status to Saved?',
+                'delete_title' => 'Confirmation',
+                'delete_text' => 'Are you sure you want to delete Floor Order :number?'
+            ],
+            'success' => [
+                'title' => 'Success',
+                'status_changed' => 'Status changed successfully',
+                'deleted' => 'Floor Order deleted successfully'
+            ],
+            'error' => [
+                'title' => 'Error',
+                'general' => 'An error occurred',
+                'delete' => 'Failed to delete Floor Order'
+            ]
+        ],
+        'create' => [
+            'title' => 'Add Floor Order',
+            'user_info' => [
+                'name' => 'Name',
+                'position' => 'Position',
+                'division' => 'Division',
+                'outlet' => 'Outlet',
+                'date' => 'Date'
+            ],
+            'arrival_date' => 'Arrival Date',
+            'notes' => 'Notes',
+            'notes_placeholder' => 'Enter notes if any',
+            'warehouse' => 'Warehouse',
+            'select_warehouse' => 'Select Warehouse',
+            'search_item' => 'Search Item',
+            'search_placeholder' => 'Search by item name/code...',
+            'table' => [
+                'item_name' => 'Item Name',
+                'sku' => 'SKU',
+                'qty' => 'Qty',
+                'unit' => 'Unit',
+                'price' => 'Price',
+                'total' => 'Total'
+            ],
+            'buttons' => [
+                'cancel' => 'Cancel',
+                'save' => 'Save'
+            ]
+        ],
+        'edit' => [
+            'title' => 'Edit Floor Order',
+            'fo_number' => 'Floor Order No.',
+            'warehouse' => 'Warehouse',
+            'arrival_date' => 'Arrival Date',
+            'notes' => 'Notes',
+            'table' => [
+                'item_name' => 'Item Name',
+                'sku' => 'SKU',
+                'qty' => 'Qty',
+                'unit' => 'Unit',
+                'price' => 'Price',
+                'total' => 'Total'
+            ],
+            'buttons' => [
+                'save' => 'Save',
+                'back' => 'Back'
+            ]
+        ],
+        'show' => [
+            'title' => 'Floor Order Detail',
+            'fo_number' => 'FO Number',
+            'order_date' => 'Order Date',
+            'warehouse' => 'Warehouse',
+            'status' => 'Status',
+            'arrival_date' => 'Arrival Date',
+            'created_by' => 'Created By',
+            'no_items' => 'No items',
+            'table' => [
+                'name' => 'Name',
+                'code' => 'Code',
+                'qty' => 'Qty',
+                'unit' => 'Unit',
+                'price' => 'Price',
+                'subtotal' => 'Subtotal',
+                'total' => 'Total'
+            ],
+            'buttons' => [
+                'back' => 'Back',
+                'edit' => 'Edit'
+            ]
+        ]
+    ],
+
+    'sidebar' => [
+        'transaction' => 'Transaction',
+        'floor_orders' => 'Floor Order',
+        // ... menu sidebar lainnya ...
+    ],
+
+    "floor-orders" => [
+        "title" => "Floor Order"
     ]
-],
-    ],
 ];
 ?>
 

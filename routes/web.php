@@ -14,6 +14,10 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ReportFJController;
 use App\Http\Controllers\RekapFJController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\FloorOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +82,85 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::post('/sales/store', [SalesController::class, 'store'])
         ->middleware(['auth', 'json.response']);
+
+    // User Management Routes
+    Route::prefix('users')->name('users.')->middleware(['auth'])->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::post('/set-role/{userId}', [UserController::class, 'setRole'])->name('set-role');
+        Route::post('/users', [UserController::class, 'store'])->middleware('permission:users,create');
+        Route::put('/users/{user}', [UserController::class, 'update'])->middleware('permission:users,edit');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->middleware('permission:users,delete');
+        Route::put('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:users,edit');
+    });
+
+    // Role Management Routes
+    Route::group(['middleware' => ['permission:roles,view']], function () {
+        Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+        Route::post('/roles', [RoleController::class, 'store'])->middleware('permission:roles,create');
+        Route::put('/roles/{role}', [RoleController::class, 'update'])->middleware('permission:roles,edit');
+        Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->middleware('permission:roles,delete');
+        Route::put('/roles/{role}/toggle-status', [RoleController::class, 'toggleStatus'])->middleware('permission:roles,edit');
+    });
+
+    Route::get('/categories/{category}/sub-categories', [CategoryController::class, 'getSubCategories'])->name('categories.sub-categories');
+
+    Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::post('/users/{userId}/set-role', [App\Http\Controllers\UserController::class, 'setRole'])->name('users.set-role');
+
+    // Menus Routes
+    Route::prefix('menus')->name('menus.')->group(function () {
+        Route::get('/', [MenuController::class, 'index'])->name('index');
+        Route::post('/', [MenuController::class, 'store'])->name('store');
+        Route::put('/{menu}', [MenuController::class, 'update'])->name('update');
+        Route::put('/{menu}/toggle-status', [MenuController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('destroy');
+        Route::get('/parents', [MenuController::class, 'getParentMenus'])->name('parents');
+    });
+
+    Route::prefix('floor-orders')->group(function () {
+        // Routes untuk create dan draft yang tidak perlu middleware status check
+        Route::post('draft', [FloorOrderController::class, 'storeDraft'])->name('floor-orders.store-draft');
+        Route::put('draft/{floorOrder}', [FloorOrderController::class, 'updateDraft'])->name('floor-orders.update-draft');
+        
+        // Route untuk save draft (mengubah status ke saved)
+        Route::post('{floorOrder}/save-draft', [FloorOrderController::class, 'saveDraft'])
+            ->name('floor-orders.save-draft')
+            ->middleware('check.floor.order.status');
+
+        // Route untuk delete
+        Route::delete('{floorOrder}', [FloorOrderController::class, 'destroy'])
+            ->name('floor-orders.destroy');
+
+        // Route untuk finalize (mengubah status dari draft ke saved)
+        Route::put('draft/{floorOrder}/finalize', [FloorOrderController::class, 'finalize'])
+            ->name('floor-orders.finalize');
+
+        // Route lainnya...
+    });
+
+    Route::get('/floor-orders', [App\Http\Controllers\FloorOrderController::class, 'index'])->name('floor-orders.index');
+
+    Route::get('floor-orders/items/{warehouseCode}', [FloorOrderController::class, 'getItemsByWarehouse']);
+    Route::get('floor-orders/items-edit/{warehouseCode}', [FloorOrderController::class, 'getItemsByWarehouseEdit']);
+    Route::resource('floor-orders', FloorOrderController::class);
+
+    Route::get('/items/{item}/availability', [ItemController::class, 'getAvailability'])->name('items.availability');
+
+    Route::get('/items/{item}/images', [ItemController::class, 'getImages']);
+
+    Route::get('/items/{item}/prices', [ItemController::class, 'getPrices'])->name('items.prices');
+
+    Route::get('/{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
+
+    Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
+
+    Route::delete('items/delete-image/{id}', [ItemController::class, 'deleteImage']);
+
+    Route::put('/floor-orders/{floorOrder}', [FloorOrderController::class, 'update'])->name('floor-orders.update');
+
+    Route::get('items/{id}/detail', [ItemController::class, 'getDetail'])->name('items.detail');
+
+    Route::get('items/{id}/show', [ItemController::class, 'show'])->name('items.show');
 });
 
 Route::prefix('reports')->name('reports.')->group(function () {
@@ -88,17 +171,3 @@ Route::prefix('reports')->name('reports.')->group(function () {
     Route::post('rekap-fj/data', [RekapFJController::class, 'data'])->name('rekap-fj.data');
     Route::post('rekap-fj/export', [RekapFJController::class, 'export'])->name('rekap-fj.export');
 });
-
-Route::get('/items/{item}/availability', [ItemController::class, 'getAvailability'])->name('items.availability');
-
-Route::get('/items/{item}/images', [ItemController::class, 'getImages']);
-
-Route::get('/items/{item}/prices', [ItemController::class, 'getPrices'])->name('items.prices');
-
-Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
-
-Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
-
-Route::get('/categories/{category}/sub-categories', [CategoryController::class, 'getSubCategories']);
-
-Route::delete('items/delete-image/{id}', [ItemController::class, 'deleteImage']);

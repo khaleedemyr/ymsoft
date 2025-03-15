@@ -6,17 +6,17 @@ use App\Models\ActivityLog;
 
 trait LogActivity
 {
-    protected function logActivity($activityType, $module, $description, $oldData = null, $newData = null)
+    protected function logActivity($module, $activity_type, $description, $old_data = null, $new_data = null)
     {
         ActivityLog::create([
             'user_id' => auth()->id(),
-            'activity_type' => $activityType,
             'module' => $module,
+            'activity_type' => $activity_type,
             'description' => $description,
+            'old_data' => $old_data ? json_encode($old_data) : null,
+            'new_data' => $new_data ? json_encode($new_data) : null,
             'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'old_data' => $oldData,
-            'new_data' => $newData
+            'user_agent' => request()->userAgent()
         ]);
     }
 } 

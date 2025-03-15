@@ -11,6 +11,7 @@ class Jabatan extends Model
 
     // Tentukan nama tabel yang benar jika tidak mengikuti konvensi penamaan Laravel
     protected $table = 'tbl_data_jabatan';
+    protected $primaryKey = 'id_jabatan';
 
     // Tentukan kolom yang dapat diisi
     protected $fillable = [

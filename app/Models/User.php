@@ -18,9 +18,13 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'nama_lengkap',
         'email',
         'password',
+        'id_jabatan',
+        'division_id',
+        'id_outlet',
+        'status'
     ];
 
     /**
@@ -40,20 +44,58 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     public function outlet()
     {
-        return $this->belongsTo(Outlet::class, 'id_outlet', 'id_outlet');
+        return $this->belongsTo('App\Models\Outlet', 'id_outlet', 'id_outlet');
     }
 
     public function divisi()
     {
-        return $this->belongsTo(Divisi::class, 'division_id', 'id');
+        return $this->belongsTo('App\Models\Divisi', 'division_id', 'id');
     }
 
     public function jabatan()
     {
-        return $this->belongsTo(Jabatan::class, 'id_jabatan', 'id_jabatan');
+        return $this->belongsTo('App\Models\Jabatan', 'id_jabatan', 'id_jabatan');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles');
+    }
+
+    public function hasRole($roleName)
+    {
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    public function hasPermission($menuSlug, $permission)
+    {
+        return $this->roles()->get()->contains(function ($role) use ($menuSlug, $permission) {
+            return $role->hasPermission($menuSlug, $permission);
+        });
+    }
+
+    public function assignRole($role)
+    {
+        if (is_string($role)) {
+            $role = Role::where('name', $role)->firstOrFail();
+        }
+        
+        if (!$this->roles()->where('role_id', $role->id)->exists()) {
+            $this->roles()->attach($role->id);
+        }
+    }
+
+    public function removeRole($role)
+    {
+        if (is_string($role)) {
+            $role = Role::where('name', $role)->firstOrFail();
+        }
+        
+        $this->roles()->detach($role->id);
     }
 }

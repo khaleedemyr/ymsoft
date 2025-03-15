@@ -207,6 +207,15 @@ class ItemController extends Controller
             // Handle image upload
             $this->handleImageUpload($request, $item);
 
+            // Log activity untuk pembuatan item baru
+            $this->logActivity(
+                'CREATE',
+                'items',
+                'Membuat item baru: ' . $item->name,
+                null,
+                $item->load(['prices', 'availabilities', 'images'])->toArray()
+            );
+
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Item berhasil ditambahkan']);
 
@@ -227,6 +236,7 @@ class ItemController extends Controller
             DB::beginTransaction();
             
             $item = Item::findOrFail($id);
+            $oldData = $item->load(['prices', 'availabilities', 'images'])->toArray();
 
             // Validasi data
             $validatedData = $request->validate([
@@ -300,6 +310,16 @@ class ItemController extends Controller
 
             // Handle image upload
             $this->handleImageUpload($request, $item);
+
+            // Log activity untuk update item
+            $newData = $item->fresh()->load(['prices', 'availabilities', 'images'])->toArray();
+            $this->logActivity(
+                'UPDATE',
+                'items',
+                'Mengupdate item: ' . $item->name,
+                $oldData,
+                $newData
+            );
 
             DB::commit();
             return response()->json(['success' => true, 'message' => 'Item berhasil diperbarui']);
@@ -383,6 +403,15 @@ class ItemController extends Controller
 
         $items = $query->get();
 
+        // Log activity untuk export Excel
+        $this->logActivity(
+            'EXPORT',
+            'items',
+            'Men-download daftar item dalam format Excel',
+            null,
+            ['total_items' => $items->count(), 'filters' => $request->all()]
+        );
+
         // Pass items collection ke ItemsExport
         return Excel::download(new ItemsExport($items), 'items-' . date('Y-m-d') . '.xlsx');
     }
@@ -447,6 +476,15 @@ class ItemController extends Controller
 
     public function downloadTemplate()
     {
+        // Log activity untuk download template
+        $this->logActivity(
+            'DOWNLOAD',
+            'items',
+            'Men-download template import barang',
+            null,
+            null
+        );
+
         return Excel::download(new ItemTemplateExport, 'template_import_barang.xlsx');
     }
 
@@ -489,6 +527,15 @@ class ItemController extends Controller
                 ];
             }
         }
+
+        // Log activity untuk preview import
+        $this->logActivity(
+            'PREVIEW',
+            'items',
+            'Melakukan preview import data barang',
+            null,
+            ['total_items' => count($preview)]
+        );
 
         // Store preview data in session
         session(['import_data' => $preview]);
@@ -693,5 +740,35 @@ class ItemController extends Controller
                 ]
             ], 500);
         }
+    }
+
+    public function getDetail($id)
+    {
+        try {
+            $item = Item::with(['category', 'subcategory'])->findOrFail($id);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $item->id,
+                    'sku' => $item->sku,
+                    'name' => $item->name,
+                    'category_name' => $item->category->name ?? '-',
+                    'subcategory_name' => $item->subcategory->name ?? '-',
+                    // tambahkan data lain yang diperlukan
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+    }
+
+    public function show($id)
+    {
+        $item = Item::with(['category', 'subcategory'])->findOrFail($id);
+        return view('items.show', compact('item'));
     }
 } 

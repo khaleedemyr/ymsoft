@@ -11,6 +11,7 @@ class Outlet extends Model
 
     // Tentukan nama tabel yang benar
     protected $table = 'tbl_data_outlet';
+    protected $primaryKey = 'id_outlet';
 
     // Tentukan kolom yang dapat diisi
     protected $fillable = [

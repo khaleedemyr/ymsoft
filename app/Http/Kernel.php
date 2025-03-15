@@ -64,10 +64,12 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'permission' => \App\Http\Middleware\CheckPermission::class,
     ];
 
     protected $routeMiddleware = [
         // ... middleware lainnya ...
         'json.response' => \App\Http\Middleware\ForceJsonResponse::class,
+        'check.floor.order.status' => \App\Http\Middleware\CheckFloorOrderStatus::class,
     ];
 }
