@@ -92,8 +92,42 @@ class Item extends Model
         return $this->hasMany(Outlet::class);
     }
 
-    public function medium_unit()
+    public function unit()
     {
-        return $this->belongsTo(Unit::class, 'medium_unit_id');
+        return $this->belongsTo(Unit::class, 'uom_id');
+    }
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class);
+    }
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
+
+    // Untuk mendapatkan semua unit yang tersedia
+    public function units()
+    {
+        return $this->belongsToMany(Unit::class, 'item_units', 'item_id', 'unit_id')
+            ->withPivot(['conversion']);
+    }
+
+    /**
+     * Mendapatkan nilai konversi ke satuan terkecil berdasarkan unit yang diberikan
+     * @param int $unitId ID unit yang akan dikonversi
+     * @return float Nilai pengali untuk konversi ke satuan terkecil
+     */
+    public function getConversionMultiplier($unitId)
+    {
+        if ($unitId == $this->small_unit_id) {
+            return 1;
+        } elseif ($unitId == $this->medium_unit_id) {
+            return $this->small_conversion_qty;
+        } elseif ($unitId == $this->large_unit_id) {
+            return $this->medium_conversion_qty * $this->small_conversion_qty;
+        }
+        return 1;
     }
 } 

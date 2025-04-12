@@ -67,149 +67,32 @@
                 </div>
 
                 <div class="dropdown topbar-head-dropdown ms-1 header-item" id="notificationDropdown">
-                    <button type="button" class="btn btn-icon btn-topbar btn-ghost-light rounded-circle user-name-text" id="page-header-notifications-dropdown" data-bs-toggle="dropdown"  data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" class="btn btn-icon btn-topbar btn-ghost-light rounded-circle user-name-text" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                         <i class='ti ti-bell-ringing fs-3xl'></i>
-                        <span class="position-absolute topbar-badge fs-3xs translate-middle badge rounded-pill bg-danger"><span class="notification-badge">4</span><span class="visually-hidden">unread messages</span></span>
+                        <span class="position-absolute topbar-badge fs-3xs translate-middle badge rounded-pill bg-danger notification-badge d-none">0</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
-
                         <div class="dropdown-head rounded-top">
                             <div class="p-3 border-bottom border-bottom-dashed">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <h6 class="mb-0 fs-lg fw-semibold"> Notifications <span class="badge bg-danger-subtle text-danger fs-sm notification-badge"> 4</span></h6>
-                                        <p class="fs-md text-muted mt-1 mb-0">You have <span class="fw-semibold notification-unread">3</span> unread messages</p>
+                                        <h6 class="mb-0 fs-lg fw-semibold">Notifikasi <span class="badge bg-danger-subtle text-danger fs-sm notification-badge">0</span></h6>
+                                        <p class="fs-md text-muted mt-1 mb-0">Anda memiliki <span class="fw-semibold notification-unread">0</span> pesan belum dibaca</p>
                                     </div>
                                     <div class="col-auto dropdown">
                                         <a href="javascript:void(0);" data-bs-toggle="dropdown" class="link-secondary fs-md"><i class="bi bi-three-dots-vertical"></i></a>
                                         <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#">All Clear</a></li>
-                                            <li><a class="dropdown-item" href="#">Mark all as read</a></li>
-                                            <li><a class="dropdown-item" href="#">Archive All</a></li>
+                                            <li><a class="dropdown-item mark-all-read" href="#">Tandai semua dibaca</a></li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-
                         <div class="py-2 ps-2" id="notificationItemsTabContent">
                             <div data-simplebar style="max-height: 300px;" class="pe-2">
-                                <h6 class="text-overflow text-muted fs-sm my-2 text-uppercase notification-title">New</h6>
-                                <div class="text-reset notification-item d-block dropdown-item position-relative unread-message">
-                                    <div class="d-flex">
-                                        <div class="avatar-xs me-3 flex-shrink-0">
-                                            <span class="avatar-title bg-success-subtle text-success rounded-circle fs-lg">
-                                                <i class='ti ti-gift'></i>
-                                            </span>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <a href="#!" class="stretched-link">
-                                                <h6 class="mt-0 fs-md mb-2 lh-base">Your <b>Elite</b> author Graphic
-                                                    Optimization <span class="text-secondary">reward</span> is ready!
-                                                </h6>
-                                            </a>
-                                            <p class="mb-0 fs-xs fw-medium text-uppercase text-muted">
-                                                <span><i class="ti ti-clock-hour-4"></i> Just 30 sec ago</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2 fs-base">
-                                            <div class="form-check notification-check">
-                                                <input class="form-check-input" type="checkbox" value="" id="all-notification-check01">
-                                                <label class="form-check-label" for="all-notification-check01"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="text-reset notification-item d-block dropdown-item position-relative unread-message">
-                                    <div class="d-flex">
-                                        <div class="position-relative me-3 flex-shrink-0">
-                                            <img src="build/images/users/avatar-2.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                            <span class="active-badge position-absolute start-100 translate-middle p-1 bg-success rounded-circle">
-                                                <span class="visually-hidden">New alerts</span>
-                                            </span>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <a href="#!" class="stretched-link">
-                                                <h6 class="mt-0 mb-1 fs-md fw-semibold">Angela Bernier</h6>
-                                            </a>
-                                            <div class="fs-sm text-muted">
-                                                <p class="mb-1">Answered to your comment on the cash flow forecast's graph 🔔.</p>
-                                            </div>
-                                            <p class="mb-0 fs-xs fw-medium text-uppercase text-muted">
-                                                <span><i class="ti ti-clock-hour-4"></i> 48 min ago</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2 fs-base">
-                                            <div class="form-check notification-check">
-                                                <input class="form-check-input" type="checkbox" value="" id="all-notification-check02">
-                                                <label class="form-check-label" for="all-notification-check02"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="text-reset notification-item d-block dropdown-item position-relative unread-message">
-                                    <div class="d-flex">
-                                        <div class="avatar-xs me-3 flex-shrink-0">
-                                            <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-lg">
-                                                <i class='ti ti-message-2'></i>
-                                            </span>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <a href="#!" class="stretched-link">
-                                                <h6 class="mt-0 mb-2 fs-md lh-base">You have received <b class="text-success">20</b> new messages in the conversation
-                                                </h6>
-                                            </a>
-                                            <p class="mb-0 fs-xs fw-medium text-uppercase text-muted">
-                                                <span><i class="ti ti-clock-hour-4"></i> 2 hrs ago</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2 fs-base">
-                                            <div class="form-check notification-check">
-                                                <input class="form-check-input" type="checkbox" value="" id="all-notification-check03">
-                                                <label class="form-check-label" for="all-notification-check03"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <h6 class="text-overflow text-muted fs-sm my-2 text-uppercase notification-title">Read Before</h6>
-
-                                <div class="text-reset notification-item d-block dropdown-item position-relative">
-                                    <div class="d-flex">
-
-                                        <div class="position-relative me-3 flex-shrink-0">
-                                            <img src="build/images/users/avatar-8.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                            <span class="active-badge position-absolute start-100 translate-middle p-1 bg-warning rounded-circle">
-                                                <span class="visually-hidden">New alerts</span>
-                                            </span>
-                                        </div>
-
-                                        <div class="flex-grow-1">
-                                            <a href="#!" class="stretched-link">
-                                                <h6 class="mt-0 mb-1 fs-md fw-semibold">Maureen Gibson</h6>
-                                            </a>
-                                            <div class="fs-sm text-muted">
-                                                <p class="mb-1">We talked about a project on linkedin.</p>
-                                            </div>
-                                            <p class="mb-0 fs-xs fw-medium text-uppercase text-muted">
-                                                <span><i class="ti ti-clock-hour-4"></i> 4 hrs ago</span>
-                                            </p>
-                                        </div>
-                                        <div class="px-2 fs-base">
-                                            <div class="form-check notification-check">
-                                                <input class="form-check-input" type="checkbox" value="" id="all-notification-check04">
-                                                <label class="form-check-label" for="all-notification-check04"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="notification-actions" id="notification-actions">
-                                <div class="d-flex text-muted justify-content-center align-items-center">
-                                    Select <div id="select-content" class="text-body fw-semibold px-1">0</div> Result <button type="button" class="btn btn-link link-danger p-0 ms-2" data-bs-toggle="modal" data-bs-target="#removeNotificationModal">Remove</button>
+                                <!-- Notification items will be loaded here -->
+                                <div class="text-center p-3">
+                                    <p class="text-muted">Memuat notifikasi...</p>
                                 </div>
                             </div>
                         </div>
@@ -319,6 +202,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -396,3 +280,395 @@
 
 <!-- Tambahkan elemen pratinjau untuk tanda tangan yang disimpan -->
 <img id="savedPreview" src="" alt="Saved Signature Preview" class="img-fluid mt-2" style="display: none; max-width: 300px; height: auto;">
+
+<script>
+// Fungsi untuk memuat notifikasi
+function loadNotifications() {
+    console.log("Memuat notifikasi...");
+    $.ajax({
+        url: '/notifications/get',
+        type: 'GET',
+        success: function(response) {
+            console.log("Response notifikasi:", response);
+            if (response.success && response.notifications) {
+                renderNotifications(response.notifications);
+                updateNotificationBadge(response.unread_count);
+            } else {
+                console.error("Format response tidak sesuai:", response);
+            }
+        },
+        error: function(error) {
+            console.error('Error loading notifications:', error);
+        }
+    });
+}
+
+// Render notifikasi
+function renderNotifications(notifications) {
+    var container = $('#notificationItemsTabContent').find('[data-simplebar]');
+    container.empty();
+    
+    if (notifications.length === 0) {
+        container.html('<div class="text-center p-3"><p class="text-muted">Tidak ada notifikasi</p></div>');
+        return;
+    }
+    
+    // Kelompokkan notifikasi berdasarkan status baca
+    var unreadNotifications = notifications.filter(n => n.is_read === 0 || n.is_read === false);
+    var readNotifications = notifications.filter(n => n.is_read === 1 || n.is_read === true);
+    
+    // Render notifikasi belum dibaca
+    if (unreadNotifications.length > 0) {
+        container.append('<h6 class="text-overflow text-muted fs-sm my-2 text-uppercase notification-title">Baru</h6>');
+        unreadNotifications.forEach(function(notification) {
+            container.append(createNotificationItem(notification, true));
+        });
+    }
+    
+    // Render notifikasi sudah dibaca
+    if (readNotifications.length > 0) {
+        container.append('<h6 class="text-overflow text-muted fs-sm my-2 text-uppercase notification-title">Sebelumnya</h6>');
+        readNotifications.forEach(function(notification) {
+            container.append(createNotificationItem(notification, false));
+        });
+    }
+}
+
+// Buat item notifikasi
+function createNotificationItem(notification, isUnread) {
+    var iconClass = getNotificationIcon(notification.type);
+    var timeAgo = formatTimeAgo(notification.created_at);
+    var unreadClass = isUnread ? 'unread-message' : '';
+    
+    return `
+    <div class="text-reset notification-item d-block dropdown-item position-relative ${unreadClass}" data-id="${notification.id}">
+        <div class="d-flex notification-item-clickable" data-notification-id="${notification.id}" 
+             data-task-id="${notification.task_id}" data-message="${notification.message}">
+            <div class="avatar-xs me-3 flex-shrink-0">
+                <span class="avatar-title bg-info-subtle text-info rounded-circle fs-lg">
+                    <i class="${iconClass}"></i>
+                </span>
+            </div>
+            <div class="flex-grow-1">
+                <div class="stretched-link">
+                    <h6 class="mt-0 fs-md mb-2 lh-base">${notification.message}</h6>
+                </div>
+                <p class="mb-0 fs-xs fw-medium text-uppercase text-muted">
+                    <span><i class="ti ti-clock-hour-4"></i> ${timeAgo}</span>
+                </p>
+            </div>
+        </div>
+    </div>`;
+}
+
+// Pilih ikon berdasarkan tipe notifikasi
+function getNotificationIcon(type) {
+    switch(type) {
+        case 'TASK_CREATED': return 'ti ti-clipboard-plus';
+        case 'TASK_UPDATED': return 'ti ti-pencil';
+        case 'STATUS_CHANGED': return 'ti ti-arrows-exchange';
+        case 'COMMENT_ADDED': return 'ti ti-message-circle-2';
+        case 'PRIORITY_CHANGED': return 'ti ti-flag';
+        case 'MEMBER_ADDED': return 'ti ti-users';
+        case 'PR_CREATED': return 'ti ti-file-invoice';
+        default: return 'ti ti-bell';
+    }
+}
+
+// Format waktu yang lalu
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    
+    if (seconds < 60) return 'baru saja';
+    
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} menit yang lalu`;
+    
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} jam yang lalu`;
+    
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} hari yang lalu`;
+    
+    return date.toLocaleDateString('id-ID');
+}
+
+// Update badge jumlah notifikasi
+function updateNotificationBadge(count) {
+    $('.notification-badge').text(count);
+    $('.notification-unread').text(count);
+    
+    if (count === 0) {
+        $('.notification-badge').addClass('d-none');
+    } else {
+        $('.notification-badge').removeClass('d-none');
+    }
+}
+
+// Tandai notifikasi sebagai sudah dibaca
+function markNotificationAsRead(notificationId) {
+    $.ajax({
+        url: '/notifications/mark-as-read/' + notificationId,
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                // Perbarui tampilan notifikasi dan badge
+                loadNotifications();
+            } else {
+                console.error('Gagal menandai notifikasi sebagai dibaca:', response);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error marking notification as read:', xhr);
+        }
+    });
+}
+
+// Handler klik notifikasi untuk menampilkan modal
+$(document).on('click', '.notification-item-clickable', function() {
+    var notificationId = $(this).data('notification-id');
+    var taskId = $(this).data('task-id');
+    var message = $(this).data('message');
+    
+    // Tandai notifikasi sebagai dibaca
+    markNotificationAsRead(notificationId);
+    
+    // Isi konten modal
+    $('.notification-detail-content').html(`
+        <div class="mb-3">
+            <p class="mb-2 fs-md">${message}</p>
+            <div class="d-flex align-items-center">
+                <span class="badge bg-info me-2">Task #${taskId}</span>
+                <small class="text-muted">${formatTimeAgo(new Date())}</small>
+            </div>
+        </div>
+        
+        <div class="task-preview-container mt-3">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Memuat detail task...</p>
+            </div>
+        </div>
+    `);
+    
+    // Setel URL untuk tombol View Task
+    $('.view-task-btn').attr('data-task-id', taskId);
+    
+    // Tutup dropdown notifikasi
+    $('#page-header-notifications-dropdown').dropdown('hide');
+    
+    // Tampilkan modal
+    var notificationModal = new bootstrap.Modal(document.getElementById('notificationDetailModal'));
+    notificationModal.show();
+    
+    // Muat preview task
+    loadTaskPreview(taskId);
+});
+
+// Handler untuk tombol View Task
+$(document).on('click', '.view-task-btn', function() {
+    var taskId = $(this).attr('data-task-id');
+    window.location.href = '/maintenance/tasks/' + taskId;
+});
+
+// Fungsi untuk memuat preview task
+function loadTaskPreview(taskId) {
+    $.ajax({
+        url: '/maintenance/tasks/' + taskId + '/preview',
+        type: 'GET',
+        success: function(response) {
+            console.log('Task preview response:', response); // Tambahkan log untuk debugging
+            
+            // Render preview task
+            if (response.success) {
+                var task = response.task;
+                var priorityName = task.priority_name || 'Unknown Priority';
+                var priorityClass = getPriorityClass(priorityName);
+                var statusClass = getStatusClass(task.status);
+                var labelHtml = '';
+                
+                // Tambahkan label jika ada
+                if (task.label_name) {
+                    var labelStyle = task.label_color ? 
+                        `background-color: ${task.label_color}; color: white;` : 
+                        'background-color: #6c757d; color: white;';
+                    
+                    labelHtml = `
+                    <div class="mb-2">
+                        <span class="badge" style="${labelStyle}">${task.label_name}</span>
+                    </div>`;
+                }
+                
+                $('.task-preview-container').html(`
+                    <div class="card border">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">${task.title}</h6>
+                            <span class="badge ${statusClass}">${task.status}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span class="badge ${priorityClass}">${priorityName}</span>
+                                <small class="text-muted">Due: ${formatDate(task.due_date)}</small>
+                            </div>
+                            ${labelHtml}
+                            <p class="card-text">${task.description.substring(0, 150)}${task.description.length > 150 ? '...' : ''}</p>
+                            <div class="d-flex justify-content-between mt-3">
+                                <small class="text-muted">Dibuat oleh: ${task.creator_name || 'User'}</small>
+                                <div>
+                                    <small class="text-muted me-2"><i class="ti ti-message-circle"></i> ${task.comment_count}</small>
+                                    <small class="text-muted"><i class="ti ti-photo"></i> ${task.media_count}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            } else {
+                $('.task-preview-container').html(`
+                    <div class="alert alert-warning">
+                        Gagal memuat detail task
+                    </div>
+                `);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error loading task preview:', xhr);
+            $('.task-preview-container').html(`
+                <div class="alert alert-danger">
+                    Error: ${xhr.status} ${xhr.statusText}
+                </div>
+            `);
+        }
+    });
+}
+
+// Update function getPriorityClass untuk menggunakan priorityName
+function getPriorityClass(priorityName) {
+    if (!priorityName) return 'bg-secondary-subtle text-secondary';
+    
+    priorityName = priorityName.toUpperCase();
+    
+    if (priorityName.includes('URGENT') || priorityName.includes('HIGH')) {
+        return 'bg-danger-subtle text-danger';
+    } else if (priorityName.includes('IMPORTANT') || priorityName.includes('MEDIUM')) {
+        return 'bg-warning-subtle text-warning';
+    } else if (priorityName.includes('NORMAL')) {
+        return 'bg-info-subtle text-info';
+    } else if (priorityName.includes('LOW')) {
+        return 'bg-success-subtle text-success';
+    } else {
+        return 'bg-secondary-subtle text-secondary';
+    }
+}
+
+// Fungsi untuk mendapatkan kelas warna berdasarkan status
+function getStatusClass(status) {
+    switch(status) {
+        case 'TASK':
+            return 'bg-secondary text-white';
+        case 'PR':
+        case 'PO':
+            return 'bg-primary text-white';
+        case 'IN_PROGRESS':
+            return 'bg-warning text-dark';
+        case 'IN_REVIEW':
+            return 'bg-info text-white';
+        case 'DONE':
+            return 'bg-success text-white';
+        default:
+            return 'bg-secondary text-white';
+    }
+}
+
+// Format tanggal
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+}
+
+// Tandai semua notifikasi sebagai sudah dibaca
+$(document).on('click', '.mark-all-read', function(e) {
+    e.preventDefault();
+    
+    $.ajax({
+        url: '/notifications/mark-all-read',
+        type: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                loadNotifications();
+            }
+        }
+    });
+});
+
+// Muat notifikasi saat dokumen siap
+$(document).ready(function() {
+    console.log("Dokumen siap, memuat notifikasi...");
+    loadNotifications();
+    
+    // Auto refresh notifikasi setiap 1 menit
+    setInterval(loadNotifications, 60000);
+});
+</script>
+
+<!-- Modal untuk detail notifikasi -->
+<div class="modal fade" id="notificationDetailModal" tabindex="-1" role="dialog" aria-labelledby="notificationDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notificationDetailModalLabel">Detail Notifikasi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="notification-detail-content">
+          <!-- Isi notifikasi akan dimuat di sini -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+    .notification-item-clickable {
+        cursor: pointer;
+    }
+    
+    .notification-item-clickable:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .task-preview-container {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    /* Animasi saat notifikasi dibaca */
+    .notification-item.unread-message.read-transition {
+        animation: fadeToRead 0.5s ease-in-out forwards;
+    }
+    
+    @keyframes fadeToRead {
+        from {
+            background-color: rgba(13, 110, 253, 0.08);
+        }
+        to {
+            background-color: transparent;
+        }
+    }
+</style>

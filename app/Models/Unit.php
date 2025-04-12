@@ -22,4 +22,9 @@ class Unit extends Model
     ];
 
     protected $logName = 'unit';
+
+    public function purchaseRequisitions()
+    {
+        return $this->hasMany(MaintenancePurchaseRequisition::class, 'unit_id');
+    }
 } 

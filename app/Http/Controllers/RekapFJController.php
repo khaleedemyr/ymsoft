@@ -20,7 +20,7 @@ class RekapFJController extends Controller
     public function index()
     {
         $this->logActivity(
-            'REKAP_FJ',
+            'rekap_fj',
             'VIEW',
             'Melihat halaman rekap FJ'
         );
@@ -66,7 +66,7 @@ class RekapFJController extends Controller
                          ->get();
 
             $this->logActivity(
-                'REKAP_FJ',
+                'rekap_fj',
                 'LOAD',
                 'Memuat data rekap FJ'
             );
@@ -126,7 +126,7 @@ class RekapFJController extends Controller
             $user = auth()->user();
 
             $this->logActivity(
-                'REKAP_FJ',
+                'rekap_fj',
                 'EXPORT',
                 'Mengexport data rekap FJ'
             );

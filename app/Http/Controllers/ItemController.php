@@ -771,4 +771,151 @@ class ItemController extends Controller
         $item = Item::with(['category', 'subcategory'])->findOrFail($id);
         return view('items.show', compact('item'));
     }
+
+    public function search(Request $request)
+    {
+        try {
+            $term = $request->get('term');
+            $warehouseId = $request->get('warehouse_id');
+
+            $items = Item::select('items.*')
+                ->with(['mediumUnit'])
+                ->leftJoin('inventories', function($join) use ($warehouseId) {
+                    $join->on('items.id', '=', 'inventories.item_id')
+                         ->where('inventories.warehouse_id', '=', $warehouseId);
+                })
+                ->where(function($query) use ($term) {
+                    $query->where('items.name', 'LIKE', "%{$term}%")
+                          ->orWhere('items.sku', 'LIKE', "%{$term}%");
+                })
+                ->addSelect([
+                    'inventories.stock_on_hand',
+                    'inventories.stock_available'
+                ])
+                ->get();
+
+            $result = [];
+            foreach($items as $item) {
+                $result[] = [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'sku' => $item->sku,
+                    'stock_on_hand' => $item->stock_on_hand ?? 0,
+                    'stock_available' => $item->stock_available ?? 0,
+                    'unit' => [
+                        'name' => $item->mediumUnit->name ?? '-'
+                    ]
+                ];
+            }
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Error in item search: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getUnits($itemId)
+    {
+        try {
+            $item = Item::findOrFail($itemId);
+            
+            $units = [];
+            
+            // Tambahkan large unit jika ada
+            if ($item->large_unit_id) {
+                $largeUnit = Unit::find($item->large_unit_id);
+                if ($largeUnit) {
+                    $units[] = [
+                        'id' => $largeUnit->id,
+                        'name' => $largeUnit->name,
+                        'is_largest' => true
+                    ];
+                }
+            }
+            
+            // Tambahkan medium unit jika ada
+            if ($item->medium_unit_id) {
+                $mediumUnit = Unit::find($item->medium_unit_id);
+                if ($mediumUnit) {
+                    $units[] = [
+                        'id' => $mediumUnit->id,
+                        'name' => $mediumUnit->name,
+                        'is_largest' => !$item->large_unit_id
+                    ];
+                }
+            }
+            
+            // Tambahkan small unit jika ada
+            if ($item->small_unit_id) {
+                $smallUnit = Unit::find($item->small_unit_id);
+                if ($smallUnit) {
+                    $units[] = [
+                        'id' => $smallUnit->id,
+                        'name' => $smallUnit->name,
+                        'is_largest' => !$item->large_unit_id && !$item->medium_unit_id
+                    ];
+                }
+            }
+
+            return response()->json($units);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getSpecsAndImages(Request $request)
+    {
+        try {
+            $item = Item::with('images')->findOrFail($request->item_id);
+            
+            return response()->json([
+                'success' => true,
+                'specifications' => $item->specification,
+                'images' => $item->images->map(function($image) {
+                    return [
+                        'id' => $image->id,
+                        'path' => asset('storage/' . $image->path)
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat data item'
+            ], 500);
+        }
+    }
+
+    public function getConversions($id)
+    {
+        try {
+            $item = Item::findOrFail($id);
+            
+            // Debug log
+            \Log::info('Item conversion data:', [
+                'id' => $id,
+                'medium_conversion_qty' => $item->medium_conversion_qty,
+                'small_conversion_qty' => $item->small_conversion_qty
+            ]);
+
+            return response()->json([
+                'medium' => floatval($item->medium_conversion_qty ?: 0),
+                'large' => floatval($item->small_conversion_qty ?: 0)
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getConversions:', [
+                'id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to get conversion data',
+                'medium' => 0,
+                'large' => 0
+            ], 200); // Return 200 with default values instead of 500
+        }
+    }
 } 

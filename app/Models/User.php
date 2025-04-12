@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -67,9 +68,18 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles');
     }
 
-    public function hasRole($roleName)
+    public function hasRole($roleId)
     {
-        return $this->roles()->where('name', $roleName)->exists();
+        // Jika menggunakan relasi
+        if (method_exists($this, 'roles')) {
+            return $this->roles()->where('role_id', $roleId)->exists();
+        }
+        
+        // Jika menggunakan tabel user_roles langsung
+        return DB::table('user_roles')
+            ->where('user_id', $this->id)
+            ->where('role_id', $roleId)
+            ->exists();
     }
 
     public function hasPermission($menuSlug, $permission)
@@ -97,5 +107,92 @@ class User extends Authenticatable
         }
         
         $this->roles()->detach($role->id);
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->nama_lengkap;
+    }
+
+    public function createdPurchaseRequisitions()
+    {
+        return $this->hasMany(PurchaseRequisition::class, 'created_by');
+    }
+
+    public function requestedPurchaseRequisitions()
+    {
+        return $this->hasMany(PurchaseRequisition::class, 'requested_by');
+    }
+
+    public function user_roles()
+    {
+        return $this->hasMany(UserRole::class, 'user_id');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->where('is_read', false);
+    }
+
+    /**
+     * Get the PRs created by the user.
+     */
+    public function purchaseRequisitions()
+    {
+        return $this->hasMany(MaintenancePurchaseRequisition::class, 'created_by');
+    }
+
+    /**
+     * Get the PRs approved by the user as Chief Engineering.
+     */
+    public function chiefEngineeringApprovedPrs()
+    {
+        return $this->hasMany(MaintenancePurchaseRequisition::class, 'chief_engineering_approval_by');
+    }
+
+    /**
+     * Get the PRs approved by the user as Purchasing Manager.
+     */
+    public function purchasingManagerApprovedPrs()
+    {
+        return $this->hasMany(MaintenancePurchaseRequisition::class, 'purchasing_manager_approval_by');
+    }
+
+    /**
+     * Get the PRs approved by the user as COO.
+     */
+    public function cooApprovedPrs()
+    {
+        return $this->hasMany(MaintenancePurchaseRequisition::class, 'coo_approval_by');
+    }
+
+    public function approvedPoAsGmFinance()
+    {
+        return $this->hasMany(MaintenancePurchaseOrder::class, 'gm_finance_approval_by');
+    }
+
+    public function approvedPoAsManagingDirector()
+    {
+        return $this->hasMany(MaintenancePurchaseOrder::class, 'managing_director_approval_by');
+    }
+
+    public function approvedPoAsPresidentDirector()
+    {
+        return $this->hasMany(MaintenancePurchaseOrder::class, 'president_director_approval_by');
+    }
+
+    public function createdPurchaseOrders()
+    {
+        return $this->hasMany(MaintenancePurchaseOrder::class, 'created_by');
+    }
+
+    public function updatedPurchaseOrders()
+    {
+        return $this->hasMany(MaintenancePurchaseOrder::class, 'updated_by');
     }
 }

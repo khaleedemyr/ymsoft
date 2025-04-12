@@ -374,16 +374,16 @@ return [
         "show_inactive" => "Tampilkan Satuan Tidak Aktif"
     ],
     "item" => [
-        "title" => "Item",
-        "list" => "Daftar Item",
-        "add" => "Tambah Item",
-        "edit" => "Edit Item",
+        "title" => "Barang",
+        "list" => "Daftar Barang",
+        "add" => "Tambah Barang",
+        "edit" => "Edit Barang",
         "category" => "Kategori",
         "sub_category" => "Sub Kategori",
         "select_category" => "Pilih Kategori",
         "select_sub_category" => "Pilih Sub Kategori",
         "sku" => "SKU",
-        "name" => "Nama Item",
+        "name" => "Nama Barang",
         "description" => "Deskripsi",
         "small_unit" => "Satuan Kecil",
         "medium_unit" => "Satuan Menengah",
@@ -397,24 +397,36 @@ return [
         "action" => "Aksi",
         "save" => "Simpan",
         "close" => "Tutup",
-        "success_add" => "Item berhasil ditambahkan",
-        "success_edit" => "Item berhasil diperbarui",
-        "success_delete" => "Item berhasil dihapus",
-        "confirm_delete" => "Apakah Anda yakin ingin menghapus item ini?",
+        "success_add" => "Barang berhasil ditambahkan",
+        "success_edit" => "Barang berhasil diperbarui",
+        "success_delete" => "Barang berhasil dihapus",
+        "confirm_delete" => "Apakah Anda yakin ingin menghapus barang ini?",
         "status" => "Status",
         "active" => "Aktif",
         "inactive" => "Tidak Aktif",
-        "confirm_deactivate" => "Apakah Anda yakin ingin menonaktifkan item ini?",
-        "confirm_activate" => "Apakah Anda yakin ingin mengaktifkan item ini?",
-        "success_status_change" => "Status item berhasil diperbarui",
-        "show_active" => "Tampilkan Item Aktif",
-        "show_inactive" => "Tampilkan Item Tidak Aktif",
+        "confirm_deactivate" => "Apakah Anda yakin ingin menonaktifkan barang ini?",
+        "confirm_activate" => "Apakah Anda yakin ingin mengaktifkan barang ini?",
+        "success_status_change" => "Status barang berhasil diperbarui",
+        "show_active" => "Tampilkan Barang Aktif",
+        "show_inactive" => "Tampilkan Barang Tidak Aktif",
         "price_list" => "Daftar Harga",
         "price_list_for" => "Daftar Harga: ",
         "region_column" => "Wilayah",
         "price_column" => "Harga",
         "add_price" => "Tambah Harga",
-        "search_placeholder" => "Cari item...",
+        "search_placeholder" => "Cari barang...",
+        "table" => [
+            "last_price" => "Harga Terakhir",
+            "lowest_price" => "Harga Terendah",
+            "highest_price" => "Harga Tertinggi",
+            "use_price" => "Gunakan Harga",
+            "item_name" => "Nama Barang",
+            "sku" => "SKU",
+            "qty" => "Qty",
+            "unit" => "Satuan",
+            "price" => "Harga",
+            "total" => "Total"
+        ],
     ],
     "region" => [
         "title" => "Wilayah",
@@ -477,6 +489,85 @@ return [
         "success_status_change" => "Status gudang berhasil diperbarui",
         "show_active" => "Tampilkan Gudang Aktif",
         "show_inactive" => "Tampilkan Gudang Tidak Aktif",
+        "reports" => [
+            "title" => "Laporan",
+            "stock_analysis" => [
+                "title" => "Laporan Analisis Stok",
+                "filter" => [
+                    "warehouse" => "Gudang",
+                    "item" => "Item",
+                    "start_date" => "Tanggal Mulai",
+                    "end_date" => "Tanggal Selesai",
+                    "all_warehouses" => "Semua Gudang",
+                    "all_items" => "Semua Item",
+                    "load" => "Muat Laporan"
+                ],
+                "table" => [
+                    "item" => "Item",
+                    "sku" => "SKU",
+                    "warehouse" => "Gudang",
+                    "unit" => "Satuan",
+                    "stock" => "Stok",
+                    "total_in" => "Total Masuk",
+                    "total_out" => "Total Keluar",
+                    "turnover" => "Tingkat Perputaran",
+                    "avg_cost" => "Rata-rata Biaya",
+                    "total_value" => "Total Nilai"
+                ],
+                "no_data" => "Tidak ada data tersedia",
+                "please_select_date" => "Silakan pilih tanggal mulai dan selesai terlebih dahulu",
+                "error_loading" => "Gagal memuat data laporan",
+                "export" => [
+                    "title" => "Ekspor Excel",
+                    "success" => "Data berhasil diekspor ke Excel",
+                    "error" => "Gagal mengekspor data ke Excel"
+                ]
+            ],
+            "stock_card" => [
+                "title" => "Kartu Stok",
+                "filter" => [
+                    "warehouse" => "Gudang",
+                    "item" => "Item",
+                    "start_date" => "Tanggal Mulai",
+                    "end_date" => "Tanggal Akhir",
+                    "all_warehouses" => "Semua Gudang",
+                    "all_items" => "Semua Item",
+                    "load" => "Cari",
+                    "export" => "Export"
+                ],
+                "table" => [
+                    "date" => "Tanggal",
+                    "reference_number" => "No. Referensi",
+                    "type" => "Tipe",
+                    "item" => "Item",
+                    "warehouse" => "Gudang",
+                    "stock_info" => [
+                        "base" => "Stok Dasar",
+                        "medium" => "Konversi Menengah",
+                        "large" => "Konversi Besar",
+                        "conversion_info" => "(1 Pack = :qty Gram)",
+                        "conversion_info_large" => "(1 Pack = 1 Pack = :qty Gram)"
+                    ],
+                    "qty_in" => "Qty Masuk",
+                    "qty_out" => "Qty Keluar",
+                    "balance" => "Saldo",
+                    "avg_cost" => "Harga Rata-rata",
+                    "total_value" => "Total Nilai"
+                ],
+                "type" => [
+                    "in" => "Masuk",
+                    "out" => "Keluar"
+                ],
+                "message" => [
+                    "select_date" => "Silakan pilih tanggal mulai dan tanggal akhir",
+                    "select_item" => "Silakan pilih item",
+                    "loading" => "Memuat data...",
+                    "no_data" => "Tidak ada data",
+                    "error_loading" => "Gagal memuat data",
+                    "please_search" => "Silakan klik tombol Cari untuk memuat data"
+                ]
+            ]
+        ]
     ],
     "customer" => [
         "title" => "Pelanggan",
@@ -812,12 +903,785 @@ return [
         ]
     ],
     'sidebar' => [
+        'dashboard' => 'Dashboard',
         'transaction' => 'Transaksi',
-        'floor_orders' => 'Floor Order',
-        // ... menu sidebar lainnya ...
+        'master_data' => 'Data Master',
+        'warehouse' => 'Gudang',
+        'reports' => 'Laporan',
+        'user_management' => 'Manajemen Pengguna',
+        'finance' => 'Keuangan',
+        'purchase_invoice' => 'Faktur Pembelian',
     ],
     "floor-orders" => [
         "title" => "Floor Order"
+    ],
+    "purchasing" => [
+        "title" => "Pembelian",
+        "menu" => "Menu Pembelian",
+        "list" => "Daftar Pembelian"
+    ],
+    "purchase_requisition" => [
+        "title" => "Permintaan Pembelian",
+        "list" => "Daftar Permintaan Pembelian",
+        "add" => "Tambah Permintaan Pembelian",
+        "edit" => "Edit Permintaan Pembelian",
+        "create" => "Buat Permintaan Pembelian",
+        "view" => "Lihat Permintaan Pembelian",
+        "table" => [
+            "pr_number" => "Nomor PR",
+            "date" => "Tanggal",
+            "warehouse" => "Gudang",
+            "department" => "Departemen",
+            "requester" => "Pemohon",
+            "status" => "Status",
+            "approved_ssd_by" => "Disetujui SSD Oleh",
+            "approved_ssd_at" => "Disetujui SSD Pada",
+            "approved_cc_by" => "Disetujui CC Oleh",
+            "approved_cc_at" => "Disetujui CC Pada",
+            "action" => "Aksi",
+            "search_placeholder" => "Cari permintaan pembelian..."
+        ],
+        "status" => [
+            "draft" => "Draft",
+            "approved_ssd" => "Disetujui SSD",
+            "approved_cc" => "Disetujui CC",
+            "rejected" => "Ditolak"
+        ],
+        "form" => [
+            "date" => "Tanggal",
+            "warehouse" => "Gudang",
+            "department" => "Departemen",
+            "notes" => "Catatan",
+            "items" => "Detail Item",
+            "item_name" => "Nama Item",
+            "stock" => "Stok",
+            "available" => "Tersedia",
+            "qty" => "Jumlah",
+            "unit" => "Satuan",
+            "notes" => "Catatan",
+            "add_item" => "Tambah Item",
+            "select_warehouse" => "Pilih Gudang",
+            "select_unit" => "Pilih Satuan"
+        ],
+        "button" => [
+            "save" => "Simpan",
+            "update" => "Perbarui",
+            "back" => "Kembali",
+            "cancel" => "Batal"
+        ],
+        "message" => [
+            "success_add" => "Permintaan pembelian berhasil ditambahkan",
+            "success_update" => "Permintaan pembelian berhasil diperbarui",
+            "success_delete" => "Permintaan pembelian berhasil dihapus",
+            "confirm_delete" => "Apakah Anda yakin ingin menghapus permintaan pembelian ini?",
+            "no_data" => "Tidak ada permintaan pembelian ditemukan"
+        ]
+    ],
+    "purchase_invoice" => [
+        "title" => "Faktur Pembelian",
+        "list" => "Daftar Faktur Pembelian",
+        "add" => "Tambah Faktur Pembelian",
+        "edit" => "Ubah Faktur Pembelian",
+        "create" => "Buat Faktur Pembelian",
+        "view" => "Lihat Faktur Pembelian",
+        "table" => [
+            "search_placeholder" => "Cari faktur pembelian...",
+            "invoice_number" => "Nomor Faktur",
+            "invoice_date" => "Tanggal Faktur",
+            "po_number" => "Nomor PO",
+            "gr_number" => "Nomor GR",
+            "supplier" => "Supplier",
+            "warehouse" => "Gudang",
+            "total_amount" => "Total",
+            "payment_status" => "Status Pembayaran",
+            "contra_bon_number" => "Nomor Kontra Bon",
+            "status" => "Status",
+            "action" => "Aksi"
+        ],
+        "payment_status" => [
+            "unpaid" => "Belum Dibayar",
+            "partial" => "Dibayar Sebagian",
+            "paid" => "Lunas"
+        ],
+        "status" => [
+            "draft" => "Draft",
+            "approved" => "Disetujui",
+            "rejected" => "Ditolak",
+            "cancelled" => "Dibatalkan"
+        ],
+        "message" => [
+            "no_data" => "Tidak ada faktur pembelian",
+            "unauthorized_approval" => "Anda tidak memiliki akses untuk menyetujui/menolak faktur pembelian",
+            "cannot_edit" => "Tidak dapat mengubah faktur pembelian. Hanya status draft yang dapat diubah.",
+            "success_update" => "Faktur pembelian berhasil diperbarui"
+        ],
+        "button" => [
+            "back" => "Kembali",
+            "edit" => "Ubah",
+            "approve" => "Setujui",
+            "reject" => "Tolak",
+            "save" => "Simpan",
+            "cancel" => "Batal"
+        ],
+        "form" => [
+            "title" => "Form Faktur Pembelian",
+            "good_receive" => "Penerimaan Barang",
+            "select_good_receive" => "Pilih Penerimaan Barang",
+            "supplier_invoice_number" => "Nomor Faktur Supplier",
+            "enter_invoice_number" => "Masukkan nomor faktur supplier",
+            "invoice_date" => "Tanggal Faktur",
+            "payment_days" => "Termin Pembayaran (Hari)",
+            "due_date" => "Tanggal Jatuh Tempo",
+            "supplier" => "Supplier",
+            "warehouse" => "Gudang",
+            "notes" => "Catatan",
+            "items" => [
+                "title" => "Detail Item",
+                "item" => "Item",
+                "quantity" => "Jumlah",
+                "unit" => "Satuan",
+                "invoice_price" => "Harga Faktur",
+                "discount" => "Diskon",
+                "subtotal" => "Subtotal"
+            ],
+            "discount" => [
+                "type" => "Tipe Diskon",
+                "no_discount" => "Tanpa Diskon",
+                "percentage" => "Persentase (%)",
+                "fixed" => "Nominal Tetap",
+                "value" => "Nilai Diskon",
+                "total" => "Total Diskon"
+            ],
+            "vat" => [
+                "type" => "Tipe PPN",
+                "no_vat" => "Tanpa PPN",
+                "include" => "Include",
+                "exclude" => "Exclude",
+                "percentage" => "PPN (%)",
+                "total" => "Total PPN"
+            ],
+            "subtotal" => "Subtotal",
+            "grand_total" => "Total Akhir",
+            "buttons" => [
+                "save" => "Simpan",
+                "cancel" => "Batal"
+            ]
+        ],
+        "message" => [
+            "loading" => "Memuat...",
+            "no_data" => "Tidak ada faktur pembelian",
+            "confirm_delete" => "Apakah Anda yakin ingin menghapus faktur pembelian ini?",
+            "delete_warning" => "Tindakan ini tidak dapat dibatalkan",
+            "success_delete" => "Faktur pembelian berhasil dihapus",
+            "error_delete" => "Gagal menghapus faktur pembelian",
+            "success_create" => "Faktur pembelian berhasil dibuat",
+            "error_create" => "Gagal membuat faktur pembelian",
+            "cannot_approve" => "Tidak dapat menyetujui faktur pembelian ini. Hanya status draft yang dapat disetujui.",
+            "cannot_reject" => "Tidak dapat menolak faktur pembelian ini. Hanya status draft yang dapat ditolak.",
+            "confirm_approve" => "Konfirmasi Persetujuan",
+            "confirm_approve_message" => "Apakah Anda yakin ingin menyetujui faktur pembelian ini?",
+            "confirm_reject" => "Konfirmasi Penolakan",
+            "confirm_reject_message" => "Apakah Anda yakin ingin menolak faktur pembelian ini?",
+            "success_approve" => "Faktur pembelian berhasil disetujui",
+            "success_reject" => "Faktur pembelian berhasil ditolak"
+        ]
+    ],
+    "loading" => "Memuat...",
+    "filter" => "Filter",
+    "refresh" => "Segarkan",
+    "showing" => "Menampilkan",
+    "to" => "hingga",
+    "of" => "dari",
+    "entries" => "data",
+    "filtered_from" => "difilter dari",
+    "total_entries" => "total data",
+    "show" => "Tampilkan",
+    "search" => "Cari",
+    "no_matching_records" => "Tidak ada data yang cocok",
+    "first" => "Pertama",
+    "last" => "Terakhir",
+    "next" => "Selanjutnya",
+    "previous" => "Sebelumnya",
+    "yes" => "Ya",
+    "no" => "Tidak",
+    "success" => "Sukses",
+    "error" => "Error",
+    "supplier" => [
+        "title" => "Supplier"
+    ],
+    "total" => "Total",
+    "action" => "Aksi",
+    "select" => "Pilih",
+    "notes" => "Catatan",
+    "no_items" => "Tidak ada item",
+    'warehouse_management' => [
+        'title' => 'Manajemen Gudang',
+    ],
+    'good_receive' => [
+        'title' => 'Good Receive',
+        'add' => 'Tambah Good Receive',
+        'scan_qr' => 'Scan QR Code',
+        'po_not_found' => 'Purchase Order tidak ditemukan',
+        'po_already_received' => 'Purchase Order sudah diterima dan tidak bisa di-receive lagi',
+        'success_create' => 'Good Receive berhasil dibuat',
+        'success_update' => 'Good Receive berhasil diperbarui',
+        'success_delete' => 'Good Receive berhasil dihapus',
+        'cannot_edit' => 'Good Receive tidak dapat diedit dalam status saat ini',
+        'cannot_delete' => 'Good Receive tidak dapat dihapus dalam status saat ini',
+        'form' => [
+            'title' => 'Form Good Receive',
+            'po_number' => 'Nomor PO',
+            'supplier' => 'Supplier',
+            'receive_date' => 'Tanggal Terima',
+            'item_name' => 'Nama Barang',
+            'quantity' => 'Jumlah PO',
+            'quantity_received' => 'Jumlah Terima',
+            'unit' => 'Satuan',
+            'notes' => 'Catatan',
+            'save' => 'Simpan',
+            'cancel' => 'Batal',
+            'scan_qr' => 'Scan QR Code',
+            'scan' => 'Scan',
+            'open_camera' => 'Buka Kamera',
+            'switch_camera' => 'Ganti Kamera',
+            'scan_placeholder' => 'Masukkan QR code atau scan...',
+            'camera_preview' => 'Preview Kamera',
+            'search_po' => 'Cari PO',
+            'enter_po_number' => 'Masukkan nomor PO',
+            'total_amount' => 'Total'
+        ],
+        'table' => [
+            'gr_number' => 'Nomor GR',
+            'po_number' => 'Nomor PO',
+            'supplier' => 'Supplier',
+            'receive_date' => 'Tanggal Terima',
+            'status' => 'Status',
+            'total' => 'Total',
+            'action' => 'Aksi'
+        ],
+        'status' => [
+            'draft' => 'Draft',
+            'approved' => 'Disetujui',
+            'rejected' => 'Ditolak'
+        ],
+        'message' => [
+            'success_create' => 'Penerimaan barang berhasil dibuat',
+            'success_update' => 'Penerimaan barang berhasil diperbarui',
+            'success_delete' => 'Penerimaan barang berhasil dihapus',
+            'confirm_delete' => 'Apakah Anda yakin ingin menghapus penerimaan barang ini?',
+            'no_data' => 'Tidak ada penerimaan barang ditemukan',
+            'error_delete' => 'Gagal menghapus penerimaan barang',
+            'success_approve' => 'Penerimaan barang berhasil disetujui',
+            'success_reject' => 'Penerimaan barang berhasil ditolak',
+            'confirm_approve' => 'Apakah Anda yakin ingin menyetujui penerimaan barang ini?',
+            'confirm_reject' => 'Apakah Anda yakin ingin menolak penerimaan barang ini?',
+            'saving' => 'Menyimpan...',
+            'success_title' => 'Berhasil',
+            'error_title' => 'Error',
+            'save_error' => 'Gagal menyimpan penerimaan barang',
+            'qr_required' => 'Silakan masukkan atau scan kode QR',
+            'scan_error' => 'Gagal memindai kode QR',
+            'camera_not_supported' => 'Browser Anda tidak mendukung akses kamera',
+            'camera_access_denied' => 'Akses kamera ditolak',
+            'camera_switch_error' => 'Gagal mengganti kamera',
+            'po_number_required' => 'Silakan masukkan nomor PO',
+            'search_error' => 'Gagal mencari PO'
+        ]
+    ],
+    "datetimepicker" => [
+        "title" => "Pilih Tanggal & Waktu",
+        "select_date" => "Pilih Tanggal",
+        "select_time" => "Pilih Waktu",
+        "today" => "Hari Ini",
+        "clear" => "Bersihkan",
+        "close" => "Tutup",
+        "select" => "Pilih",
+        "cancel" => "Batal",
+        "now" => "Sekarang",
+        "done" => "Selesai",
+        "previous_month" => "Bulan Sebelumnya",
+        "next_month" => "Bulan Berikutnya",
+        "months" => [
+            "january" => "Januari",
+            "february" => "Februari",
+            "march" => "Maret",
+            "april" => "April",
+            "may" => "Mei",
+            "june" => "Juni",
+            "july" => "Juli",
+            "august" => "Agustus",
+            "september" => "September",
+            "october" => "Oktober",
+            "november" => "November",
+            "december" => "Desember"
+        ],
+        "weekdays" => [
+            "sunday" => "Minggu",
+            "monday" => "Senin",
+            "tuesday" => "Selasa",
+            "wednesday" => "Rabu",
+            "thursday" => "Kamis",
+            "friday" => "Jumat",
+            "saturday" => "Sabtu"
+        ],
+        "weekdays_short" => [
+            "sun" => "Min",
+            "mon" => "Sen",
+            "tue" => "Sel",
+            "wed" => "Rab",
+            "thu" => "Kam",
+            "fri" => "Jum",
+            "sat" => "Sab"
+        ],
+        "weekdays_min" => [
+            "su" => "Mi",
+            "mo" => "Se",
+            "tu" => "Se",
+            "we" => "Ra",
+            "th" => "Ka",
+            "fr" => "Ju",
+            "sa" => "Sa"
+        ]
+    ],
+    'finance' => [
+        'title' => 'Keuangan'
+    ],
+    'contra_bon' => [
+        'title' => 'Kontra Bon',
+        'list' => 'Daftar Kontra Bon',
+        'add' => 'Tambah Kontra Bon',
+        'edit' => 'Edit Kontra Bon',
+        'view' => 'Detail Kontra Bon',
+        'table' => [
+            'contra_bon_number' => 'Nomor Kontra Bon',
+            'supplier' => 'Supplier',
+            'issue_date' => 'Tanggal Terbit',
+            'due_date' => 'Tanggal Jatuh Tempo',
+            'total_amount' => 'Total',
+            'status' => 'Status',
+            'created_by' => 'Dibuat Oleh',
+            'invoice_number' => 'Nomor Faktur',
+            'invoice_date' => 'Tanggal Faktur',
+            'po_number' => 'Nomor PO',
+            'amount' => 'Jumlah',
+            'by' => 'Oleh',
+            'at' => 'Pada'
+        ],
+        'form' => [
+            'title' => 'Form Kontra Bon',
+            'supplier' => 'Supplier',
+            'select_supplier' => 'Pilih Supplier',
+            'issue_date' => 'Tanggal Terbit',
+            'due_date' => 'Tanggal Jatuh Tempo',
+            'notes' => 'Catatan',
+            'invoice_number' => 'Nomor Faktur',
+            'invoice_date' => 'Tanggal Faktur',
+            'po_number' => 'Nomor PO',
+            'amount' => 'Jumlah',
+            'total_amount' => 'Total'
+        ],
+        'status' => [
+            'draft' => 'Draft',
+            'approved' => 'Disetujui',
+            'paid' => 'Lunas'
+        ],
+        'button' => [
+            'approve' => 'Setujui',
+            'mark_as_paid' => 'Tandai Lunas'
+        ],
+        'message' => [
+            'select_supplier' => 'Pilih supplier terlebih dahulu',
+            'no_invoices' => 'Tidak ada faktur yang tersedia',
+            'select_invoices' => 'Pilih minimal satu faktur',
+            'success_create' => 'Kontra bon berhasil dibuat',
+            'success_update' => 'Kontra bon berhasil diperbarui',
+            'success_approve' => 'Kontra bon berhasil disetujui',
+            'success_mark_as_paid' => 'Kontra bon berhasil ditandai lunas',
+            'error_create' => 'Gagal membuat kontra bon',
+            'error_update' => 'Gagal mengupdate kontra bon',
+            'error_approve' => 'Gagal menyetujui kontra bon',
+            'error_mark_as_paid' => 'Gagal menandai kontra bon sebagai lunas',
+            'confirm_approve' => 'Apakah Anda yakin ingin menyetujui kontra bon ini?',
+            'confirm_mark_as_paid' => 'Apakah Anda yakin ingin menandai kontra bon ini sebagai lunas?',
+            'cannot_approve' => 'Kontra bon tidak dapat disetujui',
+            'cannot_mark_as_paid' => 'Kontra bon tidak dapat ditandai lunas',
+            'unauthorized_approval' => 'Anda tidak memiliki akses untuk menyetujui kontra bon'
+        ],
+        'index' => [
+            'title' => 'Daftar Kontra Bon',
+            'add_new' => 'Tambah Kontra Bon Baru',
+            'table' => [
+                'no' => 'No',
+                'contra_bon_number' => 'Nomor Kontra Bon',
+                'supplier' => 'Supplier',
+                'issue_date' => 'Tanggal Terbit',
+                'due_date' => 'Tanggal Jatuh Tempo',
+                'total_amount' => 'Total Nilai',
+                'status' => 'Status',
+                'created_by' => 'Dibuat Oleh',
+                'action' => 'Aksi'
+            ],
+            'no_data' => 'Tidak ada kontra bon'
+        ],
+        'create' => [
+            'title' => 'Buat Kontra Bon',
+            'select_supplier' => 'Pilih Supplier',
+            'invoice_selection' => 'Pilihan Faktur',
+            'table' => [
+                'select' => 'Pilih',
+                'invoice_number' => 'Nomor Faktur',
+                'invoice_date' => 'Tanggal Faktur',
+                'due_date' => 'Tanggal Jatuh Tempo',
+                'po_number' => 'Nomor PO',
+                'amount' => 'Nilai'
+            ],
+            'total_selected' => 'Total Nilai Terpilih'
+        ],
+        'show' => [
+            'title' => 'Detail Kontra Bon',
+            'info' => [
+                'contra_bon_number' => 'Nomor Kontra Bon',
+                'supplier' => 'Supplier',
+                'issue_date' => 'Tanggal Terbit',
+                'due_date' => 'Tanggal Jatuh Tempo',
+                'status' => 'Status',
+                'notes' => 'Catatan',
+                'created_by' => 'Dibuat Oleh',
+                'created_at' => 'Dibuat Pada',
+                'approved_by' => 'Disetujui Oleh',
+                'approved_at' => 'Disetujui Pada',
+                'paid_by' => 'Dibayar Oleh',
+                'paid_at' => 'Dibayar Pada'
+            ],
+            'invoices' => [
+                'title' => 'Daftar Faktur',
+                'table' => [
+                    'invoice_number' => 'Nomor Faktur',
+                    'invoice_date' => 'Tanggal Faktur',
+                    'due_date' => 'Tanggal Jatuh Tempo',
+                    'po_number' => 'Nomor PO',
+                    'amount' => 'Nilai'
+                ],
+                'total_amount' => 'Total Nilai'
+            ],
+            'status_history' => [
+                'title' => 'Riwayat Status',
+                'table' => [
+                    'status' => 'Status',
+                    'by' => 'Oleh',
+                    'at' => 'Pada'
+                ]
+            ]
+        ]
+    ],
+    'aging_report' => [
+        'title' => 'Laporan Umur Hutang',
+        'filter' => [
+            'search' => 'Cari Supplier',
+            'load' => 'Muat Data',
+        ],
+        'table' => [
+            'supplier' => 'Supplier',
+            'current' => 'Belum Jatuh Tempo',
+            '1_30' => '1-30 Hari',
+            '31_60' => '31-60 Hari',
+            '61_90' => '61-90 Hari',
+            'over_90' => '> 90 Hari',
+            'total' => 'Total',
+        ],
+        'export' => [
+            'title' => 'Export Excel',
+            'filename' => 'Laporan_Umur_Hutang',
+        ],
+        'message' => [
+            'error_loading' => 'Gagal memuat data',
+            'error_export' => 'Gagal mengexport data',
+        ],
+    ],
+    'payment_planning' => [
+        'title' => 'Rencana Pembayaran',
+        'weekly_summary' => 'Ringkasan Pembayaran Mingguan',
+        'filter' => [
+            'start_date' => 'Tanggal Mulai',
+            'end_date' => 'Tanggal Selesai',
+            'search' => 'Cari',
+            'load' => 'Muat Laporan',
+            'search_placeholder' => 'Cari berdasarkan supplier atau nomor kontra bon...'
+        ],
+        'table' => [
+            'contra_bon_number' => 'Nomor Kontra Bon',
+            'supplier' => 'Supplier',
+            'issue_date' => 'Tanggal Terbit',
+            'due_date' => 'Tanggal Jatuh Tempo',
+            'days_until_due' => 'Sisa Hari',
+            'total_amount' => 'Total Nilai',
+            'paid_amount' => 'Sudah Dibayar',
+            'remaining_amount' => 'Sisa Pembayaran',
+            'week' => 'Minggu',
+            'period' => 'Periode',
+            'total' => 'Total'
+        ],
+        'weekly_card' => [
+            'period' => 'Periode',
+            'total' => 'Total Pembayaran'
+        ],
+        'export' => [
+            'title' => 'Export Excel',
+            'filename' => 'Rencana_Pembayaran',
+            'sheet_title' => 'Rencana Pembayaran'
+        ],
+        'message' => [
+            'select_date' => 'Silakan pilih tanggal mulai dan selesai terlebih dahulu',
+            'error_loading' => 'Gagal memuat data rencana pembayaran',
+            'error_export' => 'Gagal mengexport data rencana pembayaran',
+            'no_data' => 'Tidak ada data rencana pembayaran',
+            'loading' => 'Memuat data...'
+        ],
+        'summary' => [
+            'title' => 'Total per Periode',
+            'week' => 'Minggu ke-:week',
+            'total' => 'Total',
+            'period' => 'Periode: :start - :end'
+        ]
+    ],
+    'payment_history' => [
+        'title' => 'Riwayat Pembayaran',
+        'supplier' => [
+            'title' => 'Riwayat Pembayaran Supplier',
+            'table' => [
+                'payment_number' => 'Nomor Pembayaran',
+                'payment_date' => 'Tanggal Pembayaran',
+                'supplier' => 'Supplier',
+                'contra_bon' => 'Kontra Bon',
+                'amount' => 'Jumlah',
+                'payment_method' => 'Metode Pembayaran',
+                'created_by' => 'Dibuat Oleh'
+            ]
+        ],
+        'summary' => [
+            'title' => 'Ringkasan Pembayaran',
+            'table' => [
+                'period' => 'Periode',
+                'total_suppliers' => 'Total Supplier',
+                'total_payments' => 'Total Pembayaran',
+                'total_amount' => 'Total Nilai',
+                'payment_methods' => 'Metode Pembayaran'
+            ],
+            'stats' => [
+                'total_amount' => 'Total Nilai',
+                'total_payments' => 'Total Pembayaran',
+                'avg_per_payment' => 'Rata-rata per Pembayaran',
+                'avg_suppliers' => 'Rata-rata Supplier/Bulan'
+            ]
+        ],
+        'filter' => [
+            'start_date' => 'Tanggal Mulai',
+            'end_date' => 'Tanggal Selesai',
+            'supplier' => 'Supplier',
+            'all_suppliers' => 'Semua Supplier',
+            'search' => 'Cari',
+            'search_placeholder' => 'Cari berdasarkan nama supplier...',
+            'load' => 'Muat Laporan'
+        ],
+        'message' => [
+            'select_date' => 'Silakan pilih tanggal mulai dan selesai terlebih dahulu',
+            'loading' => 'Memuat data...',
+            'no_data' => 'Tidak ada data tersedia',
+            'error_loading' => 'Gagal memuat data'
+        ],
+        'export' => [
+            'title' => 'Export Excel',
+            'filename' => 'Riwayat_Pembayaran',
+            'sheet_supplier' => 'Riwayat Pembayaran Supplier',
+            'sheet_summary' => 'Ringkasan Pembayaran'
+        ]
+    ],
+    'outstanding_invoice' => [
+        'title' => 'Invoice Belum Lunas',
+        'invoices' => [
+            'title' => 'Daftar Invoice',
+            'filter' => [
+                'supplier' => 'Supplier',
+                'all_suppliers' => 'Semua Supplier',
+                'search' => 'Cari',
+                'search_placeholder' => 'Cari berdasarkan nomor invoice...',
+                'load' => 'Muat Data'
+            ],
+            'table' => [
+                'invoice_number' => 'Nomor Invoice',
+                'invoice_date' => 'Tanggal Invoice',
+                'supplier' => 'Supplier',
+                'due_date' => 'Tanggal Jatuh Tempo',
+                'amount' => 'Jumlah',
+                'remaining_days' => 'Sisa Hari',
+                'status' => 'Status'
+            ]
+        ],
+        'contra_bon' => [
+            'title' => 'Daftar Kontra Bon',
+            'filter' => [
+                'supplier' => 'Supplier',
+                'all_suppliers' => 'Semua Supplier',
+                'search' => 'Cari',
+                'search_placeholder' => 'Cari berdasarkan nomor kontra bon...',
+                'load' => 'Muat Data'
+            ],
+            'table' => [
+                'contra_bon_number' => 'Nomor Kontra Bon',
+                'issue_date' => 'Tanggal Terbit',
+                'due_date' => 'Tanggal Jatuh Tempo',
+                'supplier' => 'Supplier',
+                'total_amount' => 'Total Nilai',
+                'paid_amount' => 'Sudah Dibayar',
+                'remaining_amount' => 'Sisa Pembayaran',
+                'remaining_days' => 'Sisa Hari',
+                'status' => 'Status'
+            ]
+        ],
+        'message' => [
+            'no_data' => 'Tidak ada data tersedia',
+            'loading' => 'Memuat data...',
+            'error_loading' => 'Gagal memuat data'
+        ]
+    ],
+    'purchase_order' => [
+        'title' => 'Purchase Order',
+        'list' => 'Daftar Purchase Order',
+        'add' => 'Buat Purchase Order',
+        'edit' => 'Ubah Purchase Order',
+        'detail' => 'Detail Purchase Order',
+        
+        'form' => [
+            'title' => 'Form Purchase Order',
+            'po_date' => 'Tanggal PO',
+            'buttons' => [
+                'save' => 'Simpan Purchase Order',
+                'cancel' => 'Batal',
+                'back' => 'Kembali ke Daftar'
+            ],
+            'item_row' => [
+                'item_name' => 'Nama Barang',
+                'quantity' => 'Jumlah',
+            ]
+        ],
+        
+        'table' => [
+            'po_number' => 'Nomor PO',
+            'po_date' => 'Tanggal PO',
+            'pr_number' => 'Nomor PR',
+            'supplier' => 'Supplier',
+            'warehouse' => 'Gudang',
+            'department' => 'Departemen',
+            'status' => 'Status',
+            'created_by' => 'Dibuat Oleh',
+            'created_at' => 'Tanggal Dibuat',
+            'approved_by' => 'Disetujui Oleh',
+            'approved_at' => 'Tanggal Disetujui',
+            'rejected_by' => 'Ditolak Oleh',
+            'rejected_at' => 'Tanggal Ditolak',
+            'total_amount' => 'Total',
+            'action' => 'Aksi',
+            'search_placeholder' => 'Cari nomor PO, supplier...',
+            'item_code' => 'Kode Barang',
+            'item_sku' => 'SKU',
+            'item_name' => 'Nama Barang',
+            'quantity' => 'Jumlah',
+            'uom' => 'Satuan',
+            'price' => 'Harga',
+            'subtotal' => 'Subtotal'
+        ],
+        
+        'status' => [
+            'draft' => 'Draft',
+            'approved' => 'Disetujui',
+            'cancelled' => 'Dibatalkan'
+        ],
+        
+        'button' => [
+            'approve' => 'Setujui',
+            'reject' => 'Tolak',
+            'print' => 'Cetak',
+            'back' => 'Kembali',
+            'cancel' => 'Batal',
+            'save' => 'Simpan'
+        ],
+        
+        'message' => [
+            'confirm_delete' => 'Apakah Anda yakin ingin menghapus Purchase Order ini?',
+            'confirm_approve' => 'Apakah Anda yakin ingin menyetujui Purchase Order ini?',
+            'confirm_reject' => 'Apakah Anda yakin ingin menolak Purchase Order ini?',
+            'success_delete' => 'Purchase Order berhasil dihapus',
+            'error_delete' => 'Gagal menghapus Purchase Order',
+            'success_title' => 'Berhasil',
+            'error_title' => 'Error',
+            'save_error' => 'Gagal menyimpan Purchase Order',
+            'saving' => 'Menyimpan Purchase Order...',
+            'no_data' => 'Tidak ada Purchase Order ditemukan'
+        ]
+    ],
+    'payment' => [
+        'title' => 'Pembayaran',
+        'list' => 'Daftar Pembayaran',
+        'add' => 'Tambah Pembayaran',
+        'edit' => 'Ubah Pembayaran',
+        'view' => 'Lihat Pembayaran',
+        'table' => [
+            'payment_number' => 'Nomor Pembayaran',
+            'contra_bon' => 'Contra Bon',
+            'supplier' => 'Supplier',
+            'payment_method' => 'Metode Pembayaran',
+            'amount' => 'Jumlah',
+            'status' => 'Status',
+            'created_by' => 'Dibuat Oleh',
+            'action' => 'Aksi'
+        ],
+        'method' => [
+            'cash' => 'Tunai',
+            'transfer' => 'Transfer Bank',
+            'check' => 'Cek'
+        ],
+        'status' => [
+            'pending' => 'Menunggu',
+            'completed' => 'Selesai',
+            'rejected' => 'Ditolak'
+        ],
+        'form' => [
+            'title' => 'Form Pembayaran',
+            'contra_bon' => 'Contra Bon',
+            'select_contra_bon' => 'Pilih Contra Bon',
+            'payment_method' => 'Metode Pembayaran',
+            'select_method' => 'Pilih Metode Pembayaran',
+            'amount' => 'Jumlah',
+            'payment_proof' => 'Bukti Pembayaran',
+            'notes' => 'Catatan'
+        ],
+        'detail' => [
+            'title' => 'Detail Pembayaran',
+            'payment_proof' => 'Bukti Pembayaran',
+            'view_proof' => 'Lihat Bukti',
+            'no_proof' => 'Tidak ada bukti pembayaran'
+        ],
+        'button' => [
+            'back' => 'Kembali',
+            'save' => 'Simpan Pembayaran',
+            'approve' => 'Setujui Pembayaran',
+            'reject' => 'Tolak Pembayaran',
+            'print' => 'Cetak Pembayaran',
+            'edit' => 'Ubah Pembayaran'
+        ],
+        'message' => [
+            'unauthorized_approval' => 'Anda tidak memiliki hak akses untuk menyetujui pembayaran',
+            'cannot_approve' => 'Pembayaran tidak dapat disetujui',
+            'cannot_reject' => 'Pembayaran tidak dapat ditolak',
+            'success_approve' => 'Pembayaran berhasil disetujui',
+            'success_reject' => 'Pembayaran berhasil ditolak',
+            'confirm_approve' => 'Setujui Pembayaran',
+            'confirm_approve_message' => 'Apakah Anda yakin ingin menyetujui pembayaran ini?',
+            'confirm_reject' => 'Tolak Pembayaran',
+            'confirm_reject_message' => 'Apakah Anda yakin ingin menolak pembayaran ini?',
+            'error_approve' => 'Terjadi kesalahan saat menyetujui pembayaran',
+            'error_reject' => 'Terjadi kesalahan saat menolak pembayaran',
+        ],
     ]
 ];
 ?> 

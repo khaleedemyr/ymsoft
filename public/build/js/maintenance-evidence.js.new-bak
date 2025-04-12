@@ -1,0 +1,1605 @@
+/**
+ * Maintenance Evidence JavaScript
+ * Untuk menangani foto & video evidence
+ */
+
+const EvidenceApp = (function() {
+    // Variabel private dalam closure
+    let capturedPhotos = [];
+    let capturedVideos = [];
+    let currentStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let facingMode = 'environment'; // Default: kamera belakang
+    let videoMode = false; // Mode video (true) atau foto (false)
+    
+    // Flag untuk menandai apakah kamera sedang diakses
+    let isCameraAccessInProgress = false;
+    
+    // Inisialisasi aplikasi
+    function init() {
+        // Periksa dukungan browser terlebih dahulu
+        checkBrowserSupport();
+        
+        // Setup event listener
+        setupEventListeners();
+
+        // Tambahkan event listener untuk DOMContentLoaded
+        $(document).ready(function() {
+            // Inisialisasi Toggle Evidence pada task card
+            initEvidenceToggle();
+        });
+    }
+    
+    // Setup semua event listener
+    function setupEventListeners() {
+        // Buka modal evidence saat tombol ditekan
+        $(document).on('click', '.capture-evidence, .capture-evidence-btn', function() {
+            const taskId = $(this).data('task-id');
+            $('#captureEvidenceModal').data('task-id', taskId);
+            $('#captureEvidenceModal').modal('show');
+        });
+        
+        // Tombol ambil foto
+        $('#capturePhotoBtn').on('click', function() {
+            videoMode = false;
+            openCamera();
+        });
+        
+        // Tombol rekam video
+        $('#startVideoBtn').on('click', function() {
+            videoMode = true;
+            openCamera();
+        });
+        
+        // Tombol ambil foto dalam modal kamera
+        $('#captureBtn').on('click', function() {
+            capturePhoto();
+        });
+        
+        // Tombol stop rekam video
+        $('#stopVideoBtn').on('click', function() {
+            stopRecording();
+        });
+        
+        // Tombol ganti kamera
+        $('#switchCameraBtn').on('click', function() {
+            switchCamera();
+        });
+        
+        // Tombol simpan evidence
+        $('#saveEvidenceBtn').on('click', function() {
+            saveEvidence();
+        });
+        
+        // Hentikan kamera saat modal camera ditutup
+        $('#cameraModal').on('hidden.bs.modal', function() {
+            stopCamera();
+        });
+        
+        // Reset form saat modal evidence ditutup
+        $('#captureEvidenceModal').on('hidden.bs.modal', function() {
+            resetForm();
+        });
+        
+        // Hapus media dari preview
+        $(document).on('click', '.delete-media', function() {
+            const type = $(this).data('type');
+            const index = $(this).data('index');
+            
+            if (type === 'photo') {
+                // Hapus URL dan blob
+                URL.revokeObjectURL(capturedPhotos[index].url);
+                capturedPhotos.splice(index, 1);
+            } else if (type === 'video') {
+                // Hapus URL dan blob
+                URL.revokeObjectURL(capturedVideos[index].url);
+                capturedVideos.splice(index, 1);
+            }
+            
+            // Hapus element dari DOM
+            $(this).closest('.media-preview-item').remove();
+            
+            // Update index pada preview yang tersisa
+            updatePreviewIndices();
+        });
+        
+        // Preview media dalam modal
+        $(document).on('click', '.preview-media', function() {
+            const type = $(this).data('type');
+            const index = $(this).data('index');
+            const content = $('#mediaPreviewContent');
+            content.empty();
+            
+            if (type === 'photo') {
+                if (capturedPhotos[index]) {
+                    const img = $('<img>', {
+                        src: capturedPhotos[index].url,
+                        class: 'img-fluid'
+                    });
+                    content.append(img);
+                }
+            } else if (type === 'video') {
+                if (capturedVideos[index]) {
+                    const video = $('<video>', {
+                        src: capturedVideos[index].url,
+                        controls: true,
+                        autoplay: true,
+                        class: 'img-fluid'
+                    });
+                    content.append(video);
+                }
+            }
+            
+            $('#mediaPreviewModal').modal('show');
+        });
+
+        // Event untuk toggle evidence
+        $(document).off('click', '.evidence-toggle-btn').on('click', '.evidence-toggle-btn', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Hentikan event propagation
+            
+            const taskId = $(this).data('task-id');
+            const $btn = $(this);
+            const $content = $btn.closest('.evidence-section').find('.evidence-content');
+            const $icon = $btn.find('.evidence-toggle-icon');
+            
+            // Toggle expanded class pada button
+            $btn.toggleClass('expanded');
+            
+            // Toggle icon rotation dan slide content
+            if ($btn.hasClass('expanded')) {
+                $icon.removeClass('ri-arrow-down-s-line').addClass('ri-arrow-up-s-line');
+                $content.slideDown(200);
+            } else {
+                $icon.removeClass('ri-arrow-up-s-line').addClass('ri-arrow-down-s-line');
+                $content.slideUp(200);
+            }
+            
+            // Prevent bubbling up the event
+            return false;
+        });
+
+        // Event untuk preview evidence photo
+        $(document).on('click', '.photo-preview-item', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const mediaPath = $(this).data('media-path');
+            const mediaType = $(this).data('media-type');
+            
+            if (mediaType === 'image') {
+                showImagePreviewModal(mediaPath, 'Evidence Photo');
+            }
+            
+            return false;
+        });
+
+        // Event untuk preview evidence video
+        $(document).on('click', '.video-preview-item', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const mediaPath = $(this).data('media-path');
+            const mediaType = $(this).data('media-type');
+            
+            if (mediaType === 'video') {
+                showVideoPreviewModal(mediaPath, 'Evidence Video');
+            }
+            
+            return false;
+        });
+        
+        // Event untuk melihat galeri photo (tombol +N)
+        $(document).on('click', '.evidence-photo-more', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            try {
+                // Coba ambil data evidence dari data attribute
+                const evidencePhotosAttr = $(this).attr('data-evidence-photos');
+                
+                if (evidencePhotosAttr) {
+                    // Parse JSON dari attribute
+                    const evidenceData = JSON.parse(evidencePhotosAttr.replace(/&quot;/g, '"'));
+                    
+                    if (evidenceData && evidenceData.photos && Array.isArray(evidenceData.photos)) {
+                        showPhotoGalleryModal(evidenceData.photos);
+                        return false;
+                    }
+                }
+                
+                // Fallback ke API jika data attribute tidak ada atau invalid
+                const evidenceId = $(this).closest('.evidence-item').data('evidence-id');
+                
+                if (!evidenceId) {
+                    return false;
+                }
+                
+                // Cari semua foto dalam evidence ini menggunakan API
+                $.ajax({
+                    url: `/maintenance/kanban/evidence/${evidenceId}/media`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        try {
+                            // Pastikan response adalah object, jika string coba parse
+                            let data = response;
+                            if (typeof response === 'string') {
+                                try {
+                                    data = JSON.parse(response);
+                                } catch (e) {
+                                    // Error parsing
+                                }
+                            }
+                            
+                            if (data.success && data.data && data.data.photos && Array.isArray(data.data.photos)) {
+                                showPhotoGalleryModal(data.data.photos);
+                            } else {
+                                alert('Format respons tidak valid atau tidak ada foto.');
+                            }
+                        } catch (e) {
+                            alert('Terjadi kesalahan memproses data foto.');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Gagal memuat galeri foto: ' + xhr.statusText);
+                    }
+                });
+            } catch (e) {
+                alert('Terjadi kesalahan memproses data galeri foto.');
+            }
+            
+            return false;
+        });
+        
+        // Event untuk melihat galeri video (tombol +N)
+        $(document).on('click', '.evidence-video-more', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            try {
+                // Coba ambil data evidence dari data attribute
+                const evidenceVideosAttr = $(this).attr('data-evidence-videos');
+                
+                if (evidenceVideosAttr) {
+                    // Parse JSON dari attribute
+                    const evidenceData = JSON.parse(evidenceVideosAttr.replace(/&quot;/g, '"'));
+                    
+                    if (evidenceData && evidenceData.videos && Array.isArray(evidenceData.videos)) {
+                        showVideoGalleryModal(evidenceData.videos);
+                        return false;
+                    }
+                }
+                
+                // Fallback ke API jika data attribute tidak ada atau invalid
+                const evidenceId = $(this).closest('.evidence-item').data('evidence-id');
+                
+                if (!evidenceId) {
+                    return false;
+                }
+                
+                // Cari semua video dalam evidence ini menggunakan API
+                $.ajax({
+                    url: `/maintenance/kanban/evidence/${evidenceId}/media`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        try {
+                            // Pastikan response adalah object, jika string coba parse
+                            let data = response;
+                            if (typeof response === 'string') {
+                                try {
+                                    data = JSON.parse(response);
+                                } catch (e) {
+                                    // Error parsing
+                                }
+                            }
+                            
+                            if (data.success && data.data && data.data.videos && Array.isArray(data.data.videos)) {
+                                showVideoGalleryModal(data.data.videos);
+                            } else {
+                                alert('Format respons tidak valid atau tidak ada video.');
+                            }
+                        } catch (e) {
+                            alert('Terjadi kesalahan memproses data video.');
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Gagal memuat galeri video: ' + xhr.statusText);
+                    }
+                });
+            } catch (e) {
+                alert('Terjadi kesalahan memproses data galeri video.');
+            }
+            
+            return false;
+        });
+    }
+    
+    // Fungsi untuk memeriksa dukungan browser
+    function checkBrowserSupport() {
+        // Periksa apakah getUserMedia didukung
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            // Tampilkan dialog jika browser tidak mendukung
+            $(document).ready(function() {
+                // Tambahkan listener khusus untuk tombol evidence
+                $(document).on('click', '.capture-evidence, .capture-evidence-btn', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    alert('Browser Anda tidak mendukung akses kamera. Silakan gunakan browser lain seperti Chrome, Firefox, atau Edge terbaru.');
+                    return false;
+                });
+            });
+        }
+        
+        // Periksa jika di iOS WebView yang tidak mendukung getUserMedia
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+        
+        if (isIOS && isWebView) {
+            $(document).ready(function() {
+                // Tambahkan listener khusus untuk tombol evidence
+                $(document).on('click', '.capture-evidence, .capture-evidence-btn', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    alert('Untuk menggunakan kamera pada iOS, buka aplikasi melalui browser Safari.');
+                    return false;
+                });
+            });
+        }
+    }
+    
+    // Fungsi untuk membuka kamera
+    function openCamera() {
+        // Cegah multiple call saat masih loading
+        if (isCameraAccessInProgress) {
+            return;
+        }
+        
+        // Deteksi khusus untuk iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        // Jika mode foto di iOS, gunakan metode alternatif
+        if (isIOS && !videoMode) {
+            // Gunakan input file sebagai fallback untuk iOS
+            iOSCameraWorkaround();
+            return;
+        }
+
+        // Reset kamera jika sudah ada yang aktif
+        stopCamera();
+        
+        // Set flag
+        isCameraAccessInProgress = true;
+        
+        // Tampilkan tombol yang sesuai berdasarkan mode
+        if (videoMode) {
+            $('#captureBtn').addClass('d-none');
+            $('#stopVideoBtn').removeClass('d-none');
+        } else {
+            $('#captureBtn').removeClass('d-none');
+            $('#stopVideoBtn').addClass('d-none');
+        }
+        
+        // Tampilkan modal kamera
+        $('#cameraModal').modal('show');
+        
+        // Aktifkan kamera setelah modal ditampilkan
+        $('#cameraModal').on('shown.bs.modal', function(e) {
+            startCamera();
+            $(this).off('shown.bs.modal'); // Hapus event setelah dipanggil
+        });
+    }
+    
+    // Fungsi untuk mengaktifkan kamera
+    function startCamera() {
+        // Update status
+        updateCameraStatus('Memuat kamera...');
+        
+        // Tambahkan indikator loading
+        const videoElement = document.getElementById('cameraStream');
+        videoElement.classList.add('loading');
+        
+        // Deteksi browser
+        const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        const isFirefox = /Firefox/.test(navigator.userAgent);
+        const isEdge = /Edg/.test(navigator.userAgent);
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isAndroid = /Android/.test(navigator.userAgent);
+        
+        // Tampilkan peringatan untuk browser tertentu
+        if (isSafari || isIOS) {
+            showBrowserWarning('Safari dan iOS mungkin memiliki keterbatasan akses kamera.');
+        } else if (!isChrome && !isFirefox && !isEdge) {
+            showBrowserWarning('Browser yang direkomendasikan: Chrome, Firefox, atau Edge.');
+        }
+        
+        // Tambahkan pesan loading
+        const loadingText = $('<div>', {
+            class: 'position-absolute top-50 start-50 translate-middle text-white loading-indicator',
+            text: 'Memuat kamera...',
+            css: {
+                zIndex: 10,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                padding: '10px',
+                borderRadius: '5px'
+            }
+        });
+        
+        // Hapus teks loading yang mungkin sudah ada
+        $('.loading-indicator').remove();
+        
+        $(videoElement).parent().append(loadingText);
+        
+        // Konfigurasi kamera yang berbeda berdasarkan browser
+        let constraints = {
+            video: {
+                facingMode: facingMode,
+            },
+            audio: videoMode // Audio hanya aktif untuk mode video
+        };
+        
+        // Turunkan resolusi berdasarkan device
+        if (isIOS || isSafari) {
+            // iOS/Safari sering bermasalah dengan resolusi tinggi
+            constraints.video.width = { ideal: 320 };
+            constraints.video.height = { ideal: 240 };
+        } else if (isAndroid) {
+            // Android umumnya menangani resolusi menengah
+            constraints.video.width = { ideal: 640 };
+            constraints.video.height = { ideal: 480 };
+        } else {
+            // Browser desktop dapat menangani resolusi lebih tinggi
+            constraints.video.width = { ideal: 1280 };
+            constraints.video.height = { ideal: 720 };
+        }
+        
+        // Tambahkan timeout untuk mengatasi masalah browser yang tidak responsif
+        let cameraTimeout = setTimeout(() => {
+            updateCameraStatus('Waktu habis');
+            loadingText.text('Waktu habis. Coba refresh browser atau izinkan akses kamera');
+            videoElement.classList.remove('loading');
+            
+            // Reset flag
+            isCameraAccessInProgress = false;
+            
+            // Tambahkan tombol untuk mencoba lagi
+            const retryBtn = $('<button>', {
+                class: 'btn btn-warning mt-2',
+                text: 'Coba Lagi',
+                click: function() {
+                    $(this).remove();
+                    startCamera();
+                }
+            });
+            
+            loadingText.append($('<br>'));
+            loadingText.append(retryBtn);
+            
+        }, 5000); // 5 detik timeout
+        
+        updateCameraStatus('Meminta izin kamera...');
+        
+        // Akses kamera dengan penanganan error yang lebih baik
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                updateCameraStatus('Kamera aktif');
+                
+                // Berhasil mendapatkan stream
+                clearTimeout(cameraTimeout);
+                loadingText.remove();
+                
+                // Simpan stream untuk digunakan nanti
+                currentStream = stream;
+                
+                // Tampilkan stream pada video element
+                videoElement.srcObject = stream;
+                videoElement.classList.remove('loading');
+                
+                // Reset flag
+                isCameraAccessInProgress = false;
+                
+                // Tambahkan event listener untuk memastikan video berhasil diputar
+                videoElement.onloadedmetadata = function() {
+                    updateCameraStatus('Video stream siap');
+                    
+                    // Putar video dengan penanganan error
+                    videoElement.play()
+                        .then(() => {
+                            // Jika mode video, langsung mulai rekam
+                            if (videoMode) {
+                                updateCameraStatus('Merekam video...');
+                                startRecording(stream);
+                            } else {
+                                updateCameraStatus('Siap mengambil foto');
+                            }
+                        })
+                        .catch(function(error) {
+                            updateCameraStatus('Error: ' + error.message);
+                            alert('Gagal memulai video stream. Error: ' + error.message);
+                        });
+                };
+                
+                // Tambahkan event untuk mendeteksi jika stream berhenti secara tiba-tiba
+                stream.getVideoTracks()[0].onended = function() {
+                    updateCameraStatus('Koneksi kamera terputus');
+                    alert('Koneksi kamera terputus');
+                    $('#cameraModal').modal('hide');
+                };
+            })
+            .catch(function(error) {
+                // Gagal mengakses kamera
+                clearTimeout(cameraTimeout);
+                
+                // Reset flag
+                isCameraAccessInProgress = false;
+                
+                let errorMessage = 'Gagal mengakses kamera. ';
+                
+                // Tambahkan pesan berdasarkan jenis error
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorMessage += 'Anda perlu mengizinkan akses kamera pada browser.';
+                    updateCameraStatus('Akses kamera ditolak');
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    errorMessage += 'Tidak dapat menemukan kamera. Pastikan kamera terhubung.';
+                    updateCameraStatus('Kamera tidak ditemukan');
+                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                    errorMessage += 'Kamera mungkin sedang digunakan oleh aplikasi lain.';
+                    updateCameraStatus('Kamera sedang digunakan');
+                } else if (error.name === 'OverconstrainedError') {
+                    errorMessage += 'Resolusi kamera tidak didukung, coba gunakan resolusi yang lebih rendah.';
+                    updateCameraStatus('Resolusi tidak didukung');
+                } else {
+                    errorMessage += 'Error: ' + error.message;
+                    updateCameraStatus('Error: ' + error.message);
+                }
+                
+                loadingText.html(errorMessage + '<br>');
+                
+                // Tambahkan tombol untuk mencoba lagi
+                const retryBtn = $('<button>', {
+                    class: 'btn btn-warning mt-2',
+                    text: 'Coba Lagi',
+                    click: function() {
+                        $(this).remove();
+                        startCamera();
+                    }
+                });
+                
+                // Tambahkan tombol tutup
+                const closeBtn = $('<button>', {
+                    class: 'btn btn-danger mt-2 ms-2',
+                    text: 'Tutup',
+                    click: function() {
+                        $('#cameraModal').modal('hide');
+                    }
+                });
+                
+                loadingText.append(retryBtn);
+                loadingText.append(closeBtn);
+            });
+    }
+    
+    // Fungsi untuk mengambil foto
+    function capturePhoto() {
+        const videoElement = document.getElementById('cameraStream');
+        
+        // Cek apakah video element dan stream sudah siap
+        if (!videoElement || !videoElement.srcObject) {
+            return;
+        }
+        
+        // Buat canvas untuk mengambil frame dari video
+        const canvas = document.createElement('canvas');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        
+        // Gambar frame video ke canvas
+        const context = canvas.getContext('2d');
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        
+        // Konversi ke blob dengan kualitas 0.8
+        canvas.toBlob(function(blob) {
+            // Buat URL dari blob
+            const imageUrl = URL.createObjectURL(blob);
+            
+            // Simpan blob dan URL
+            capturedPhotos.push({
+                blob: blob,
+                url: imageUrl
+            });
+            
+            // Tambahkan preview
+            addPhotoPreview(imageUrl, capturedPhotos.length - 1);
+            
+            // Tutup modal kamera
+            $('#cameraModal').modal('hide');
+        }, 'image/jpeg', 0.8);
+    }
+    
+    // Fungsi untuk menambahkan preview foto
+    function addPhotoPreview(imageUrl, index) {
+        const previewItem = $('<div>', {
+            class: 'media-preview-item card',
+            'data-type': 'photo',
+            'data-index': index,
+            css: {
+                width: '150px'
+            }
+        });
+        
+        const cardBody = $('<div>', {
+            class: 'card-body p-2'
+        });
+        
+        const img = $('<img>', {
+            src: imageUrl,
+            class: 'img-fluid rounded mb-2',
+            css: {
+                height: '100px',
+                objectFit: 'cover',
+                width: '100%',
+                cursor: 'pointer'
+            }
+        });
+        
+        const previewBtn = $('<button>', {
+            type: 'button',
+            class: 'btn btn-sm btn-info preview-media',
+            'data-type': 'photo',
+            'data-index': index,
+            html: '<i class="ri-eye-line"></i>'
+        });
+        
+        const deleteBtn = $('<button>', {
+            type: 'button',
+            class: 'btn btn-sm btn-danger ms-1 delete-media',
+            'data-type': 'photo',
+            'data-index': index,
+            html: '<i class="ri-delete-bin-line"></i>'
+        });
+        
+        const btnGroup = $('<div>', {
+            class: 'd-flex justify-content-between'
+        }).append(previewBtn, deleteBtn);
+        
+        cardBody.append(img, btnGroup);
+        previewItem.append(cardBody);
+        
+        // Event untuk preview saat klik gambar
+        img.on('click', function() {
+            previewBtn.trigger('click');
+        });
+        
+        // Tambahkan ke container
+        $('.capture-preview').append(previewItem);
+    }
+    
+    // Fungsi untuk mulai rekam video dengan penanganan error yang lebih baik
+    function startRecording(stream) {
+        // Reset recorded chunks
+        recordedChunks = [];
+        
+        updateCameraStatus('Memulai rekaman video...');
+        
+        // Deteksi format yang didukung
+        const mimeTypes = [
+            'video/webm;codecs=vp9,opus',
+            'video/webm;codecs=vp8,opus',
+            'video/webm;codecs=h264,opus',
+            'video/webm',
+            'video/mp4'
+        ];
+        
+        let options = null;
+        
+        // Cari format yang didukung
+        for (let i = 0; i < mimeTypes.length; i++) {
+            if (MediaRecorder.isTypeSupported(mimeTypes[i])) {
+                options = { mimeType: mimeTypes[i] };
+                break;
+            }
+        }
+        
+        try {
+            // Buat MediaRecorder dengan format yang didukung
+            mediaRecorder = new MediaRecorder(stream, options);
+            updateCameraStatus('Merekam: ' + (options ? options.mimeType : 'format default'));
+        } catch (e) {
+            updateCameraStatus('Error rekaman: ' + e.message);
+            alert('Browser Anda tidak mendukung perekaman video: ' + e.message);
+            $('#cameraModal').modal('hide');
+            return;
+        }
+        
+        // Event untuk menyimpan data rekaman
+        mediaRecorder.ondataavailable = function(e) {
+            if (e.data && e.data.size > 0) {
+                recordedChunks.push(e.data);
+            }
+        };
+        
+        // Event untuk menangani error
+        mediaRecorder.onerror = function(e) {
+            updateCameraStatus('Error rekaman: ' + e.error);
+            alert('Error saat merekam video: ' + e.error);
+            stopRecording();
+        };
+        
+        // Event saat rekaman selesai
+        mediaRecorder.onstop = function() {
+            if (recordedChunks.length === 0) {
+                alert('Tidak ada data video yang terekam');
+                return;
+            }
+            
+            try {
+                // Buat blob dari chunks
+                const videoBlob = new Blob(recordedChunks, {
+                    type: options ? options.mimeType : 'video/webm'
+                });
+                
+                // Buat URL dari blob
+                const videoUrl = URL.createObjectURL(videoBlob);
+                
+                // Simpan blob dan URL
+                capturedVideos.push({
+                    blob: videoBlob,
+                    url: videoUrl,
+                    type: options ? options.mimeType : 'video/webm'
+                });
+                
+                // Tambahkan preview
+                addVideoPreview(videoUrl, capturedVideos.length - 1);
+                
+                // Tutup modal kamera
+                $('#cameraModal').modal('hide');
+            } catch (e) {
+                alert('Error saat membuat video: ' + e.message);
+            }
+        };
+        
+        // Mulai rekam dengan chunk 1 detik
+        try {
+            mediaRecorder.start(1000);
+        } catch (e) {
+            alert('Error saat memulai rekaman: ' + e.message);
+        }
+    }
+    
+    // Fungsi untuk stop rekam video
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+    }
+    
+    // Fungsi untuk menambahkan preview video
+    function addVideoPreview(videoUrl, index) {
+        const previewItem = $('<div>', {
+            class: 'media-preview-item card',
+            'data-type': 'video',
+            'data-index': index,
+            css: {
+                width: '150px'
+            }
+        });
+        
+        const cardBody = $('<div>', {
+            class: 'card-body p-2'
+        });
+        
+        // Buat video thumbnail dengan durasi 0
+        const video = $('<video>', {
+            src: videoUrl,
+            class: 'img-fluid rounded mb-2',
+            css: {
+                height: '100px',
+                objectFit: 'cover',
+                width: '100%',
+                cursor: 'pointer'
+            }
+        });
+        
+        // Tambahkan badge video
+        const videoBadge = $('<span>', {
+            class: 'position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger',
+            html: '<i class="ri-video-line"></i>',
+            css: {
+                zIndex: 1
+            }
+        });
+        
+        const videoThumb = $('<div>', {
+            class: 'position-relative'
+        }).append(video, videoBadge);
+        
+        const previewBtn = $('<button>', {
+            type: 'button',
+            class: 'btn btn-sm btn-info preview-media',
+            'data-type': 'video',
+            'data-index': index,
+            html: '<i class="ri-play-line"></i>'
+        });
+        
+        const deleteBtn = $('<button>', {
+            type: 'button',
+            class: 'btn btn-sm btn-danger ms-1 delete-media',
+            'data-type': 'video',
+            'data-index': index,
+            html: '<i class="ri-delete-bin-line"></i>'
+        });
+        
+        const btnGroup = $('<div>', {
+            class: 'd-flex justify-content-between'
+        }).append(previewBtn, deleteBtn);
+        
+        cardBody.append(videoThumb, btnGroup);
+        previewItem.append(cardBody);
+        
+        // Event untuk preview saat klik video
+        video.on('click', function() {
+            previewBtn.trigger('click');
+        });
+        
+        // Tambahkan ke container
+        $('.capture-preview').append(previewItem);
+        
+        // Set frame pada 1 detik untuk thumbnail
+        setTimeout(() => {
+            video[0].currentTime = 1;
+        }, 100);
+    }
+    
+    // Fungsi untuk update index pada preview setelah hapus
+    function updatePreviewIndices() {
+        // Update index pada elemen foto
+        $('.media-preview-item[data-type="photo"]').each(function(index) {
+            $(this).attr('data-index', index);
+            $(this).find('.preview-media, .delete-media').attr('data-index', index);
+        });
+        
+        // Update index pada elemen video
+        $('.media-preview-item[data-type="video"]').each(function(index) {
+            $(this).attr('data-index', index);
+            $(this).find('.preview-media, .delete-media').attr('data-index', index);
+        });
+    }
+    
+    // Fungsi untuk ganti kamera (depan/belakang)
+    function switchCamera() {
+        // Toggle facingMode
+        facingMode = facingMode === 'environment' ? 'user' : 'environment';
+        
+        // Restart kamera
+        if (currentStream) {
+            stopCamera();
+            startCamera();
+        }
+    }
+    
+    // Fungsi untuk menghentikan kamera
+    function stopCamera() {
+        // Reset flag
+        isCameraAccessInProgress = false;
+        
+        // Hentikan semua track pada stream
+        if (currentStream) {
+            try {
+                currentStream.getTracks().forEach(track => {
+                    track.stop();
+                });
+                currentStream = null;
+            } catch (e) {
+                // Error stopping camera
+            }
+        }
+        
+        // Reset video element
+        const videoElement = document.getElementById('cameraStream');
+        if (videoElement) {
+            try {
+                if (videoElement.srcObject) {
+                    videoElement.srcObject = null;
+                }
+                videoElement.classList.remove('loading');
+                // Hapus teks loading jika ada
+                $('.loading-indicator').remove();
+            } catch (e) {
+                // Error resetting video element
+            }
+        }
+        
+        // Hentikan MediaRecorder jika aktif
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            try {
+                mediaRecorder.stop();
+            } catch (e) {
+                // Error stopping media recorder
+            }
+        }
+    }
+    
+    // Fungsi untuk menyimpan evidence
+    function saveEvidence() {
+        // Ambil task ID dan notes
+        const taskId = $('#captureEvidenceModal').data('task-id');
+        // Gunakan document.getElementById alih-alih jQuery untuk konsistensi
+        const notes = document.getElementById('captureEvidenceNotes').value;
+        
+        // Validasi minimal ada 1 foto atau video
+        if (capturedPhotos.length === 0 && capturedVideos.length === 0) {
+            alert('Minimal harus ada 1 foto atau video sebagai evidence.');
+            return;
+        }
+        
+        // Siapkan form data untuk upload
+        const formData = new FormData();
+        formData.append('task_id', taskId);
+        // Pastikan notes tidak null dengan menggunakan empty string sebagai fallback
+        formData.append('notes', notes || '');
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        
+        // Tambahkan foto ke form data
+        capturedPhotos.forEach((photo, index) => {
+            formData.append(`photos[${index}]`, photo.blob, `photo_${index}.jpg`);
+        });
+        
+        // Tambahkan video ke form data
+        capturedVideos.forEach((video, index) => {
+            formData.append(`videos[${index}]`, video.blob, `video_${index}.webm`);
+        });
+        
+        // Tampilkan loading
+        Swal.fire({
+            title: 'Menyimpan Evidence',
+            text: 'Mohon tunggu...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Kirim ke server
+        $.ajax({
+            url: '/maintenance/kanban/upload-evidence',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Evidence berhasil disimpan'
+                });
+                
+                // Reset form dan tutup modal
+                resetForm();
+                $('#captureEvidenceModal').modal('hide');
+                
+                // Reload halaman jika diperlukan
+                if (response.reload) {
+                    window.location.reload();
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal menyimpan evidence: ' + (xhr.responseJSON?.message || xhr.statusText)
+                });
+            }
+        });
+    }
+    
+    // Fungsi untuk reset form
+    function resetForm() {
+        // Hapus semua URL object
+        capturedPhotos.forEach(photo => URL.revokeObjectURL(photo.url));
+        capturedVideos.forEach(video => URL.revokeObjectURL(video.url));
+        
+        // Reset array
+        capturedPhotos = [];
+        capturedVideos = [];
+        
+        // Bersihkan preview
+        $('.capture-preview').empty();
+        
+        // Reset notes
+        $('#captureEvidenceNotes').val('');
+    }
+    
+    // Fungsi untuk kompatibilitas dengan kode existing
+    function initializeCamera(isVideo = false) {
+        videoMode = isVideo;
+        openCamera();
+    }
+    
+    // Fungsi compatibility untuk capturePhoto
+    function doCapture() {
+        capturePhoto();
+    }
+    
+    // Fungsi compatibility untuk stopVideoRecording
+    function stopVideoRecording() {
+        stopRecording();
+    }
+    
+    // Fungsi untuk mencoba metode akses kamera alternatif untuk iOS
+    function iOSCameraWorkaround() {
+        // Buat input file untuk memilih gambar dari galeri atau kamera
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.capture = 'camera'; // Gunakan kamera jika tersedia
+        
+        // Tambahkan event listener untuk perubahan file
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                
+                // Konversi ke blob
+                const blob = new Blob([file], { type: file.type });
+                const imageUrl = URL.createObjectURL(blob);
+                
+                // Simpan ke array foto
+                capturedPhotos.push({
+                    blob: blob,
+                    url: imageUrl
+                });
+                
+                // Tambahkan ke preview
+                addPhotoPreview(imageUrl, capturedPhotos.length - 1);
+            }
+        });
+        
+        // Klik input file
+        fileInput.click();
+    }
+    
+    // Fungsi untuk memperbarui status kamera
+    function updateCameraStatus(status) {
+        const statusElement = document.getElementById('cameraStatus');
+        if (statusElement) {
+            statusElement.textContent = status;
+        }
+    }
+    
+    // Fungsi untuk menampilkan peringatan browser
+    function showBrowserWarning(message) {
+        const warningElement = document.getElementById('browserSupportWarning');
+        const messageElement = document.getElementById('browserSupportMessage');
+        
+        if (warningElement && messageElement) {
+            messageElement.textContent = message;
+            warningElement.classList.remove('d-none');
+        }
+    }
+    
+    // Fungsi untuk menampilkan preview gambar dalam modal
+    function showImagePreviewModal(imagePath, imageName) {
+        // Buat modal untuk preview gambar
+        const modalHTML = `
+            <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${imageName || 'Image Preview'}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${imagePath}" class="img-fluid" style="max-height: 80vh;">
+                        </div>
+                        <div class="modal-footer">
+                            <a href="${imagePath}" class="btn btn-primary" download target="_blank">
+                                <i class="ri-download-line me-1"></i> Download
+                            </a>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Hapus modal lama jika ada
+        $('#imagePreviewModal').remove();
+        
+        // Tambahkan modal ke body
+        $('body').append(modalHTML);
+        
+        // Tampilkan modal
+        $('#imagePreviewModal').modal('show');
+        
+        // Event untuk hapus modal setelah ditutup
+        $('#imagePreviewModal').on('hidden.bs.modal', function() {
+            $(this).remove();
+        });
+    }
+
+    // Fungsi untuk menampilkan preview video dalam modal
+    function showVideoPreviewModal(videoPath, videoName) {
+        // Buat modal untuk preview video
+        const modalHTML = `
+            <div class="modal fade" id="videoPreviewModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${videoName || 'Video Preview'}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <video src="${videoPath}" controls autoplay class="img-fluid" style="max-height: 80vh;"></video>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="${videoPath}" class="btn btn-primary" download target="_blank">
+                                <i class="ri-download-line me-1"></i> Download
+                            </a>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Hapus modal lama jika ada
+        $('#videoPreviewModal').remove();
+        
+        // Tambahkan modal ke body
+        $('body').append(modalHTML);
+        
+        // Tampilkan modal
+        $('#videoPreviewModal').modal('show');
+        
+        // Event untuk hapus modal setelah ditutup
+        $('#videoPreviewModal').on('hidden.bs.modal', function() {
+            $(this).remove();
+        });
+    }
+    
+    // Fungsi untuk menampilkan galeri foto dalam modal
+    function showPhotoGalleryModal(photos) {
+        // Validasi input
+        if (!photos || !Array.isArray(photos) || photos.length === 0) {
+            return;
+        }
+
+        // Buat HTML untuk carousel/slider
+        let carouselItemsHTML = '';
+        let carouselIndicatorsHTML = '';
+        
+        // Buat item carousel dan indikator
+        photos.forEach((photo, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            const photoPath = photo.full_url || '/storage/' + photo.path;
+            
+            // Item carousel
+            carouselItemsHTML += `
+                <div class="carousel-item ${isActive}">
+                    <img src="${photoPath}" class="d-block w-100" alt="${photo.file_name || 'Photo ' + (index + 1)}">
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
+                        <a href="${photoPath}" class="btn btn-sm btn-primary" download target="_blank">
+                            <i class="ri-download-line"></i> Download
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            // Indikator carousel
+            carouselIndicatorsHTML += `
+                <button type="button" data-bs-target="#galleryCarousel" data-bs-slide-to="${index}" 
+                        ${isActive ? 'class="active" aria-current="true"' : ''}
+                        aria-label="Slide ${index + 1}"></button>
+            `;
+        });
+        
+        // Buat modal dengan carousel
+        const modalHTML = `
+            <div class="modal fade" id="photoGalleryModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Galeri Foto Evidence</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <div id="galleryCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    ${carouselIndicatorsHTML}
+                                </div>
+                                <div class="carousel-inner">
+                                    ${carouselItemsHTML}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#galleryCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#galleryCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Hapus modal lama jika ada
+        $('#photoGalleryModal').remove();
+        
+        // Tambahkan modal ke body
+        $('body').append(modalHTML);
+        
+        // Tampilkan modal
+        $('#photoGalleryModal').modal('show');
+        
+        // Event untuk hapus modal setelah ditutup
+        $('#photoGalleryModal').on('hidden.bs.modal', function() {
+            $(this).remove();
+        });
+    }
+    
+    // Fungsi untuk menampilkan galeri video dalam modal
+    function showVideoGalleryModal(videos) {
+        // Validasi input
+        if (!videos || !Array.isArray(videos) || videos.length === 0) {
+            return;
+        }
+        
+        // Buat HTML untuk carousel/slider
+        let carouselItemsHTML = '';
+        let carouselIndicatorsHTML = '';
+        
+        // Buat item carousel dan indikator
+        videos.forEach((video, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            const videoPath = video.full_url || '/storage/' + video.path;
+            
+            // Item carousel dengan video
+            carouselItemsHTML += `
+                <div class="carousel-item ${isActive}">
+                    <div class="ratio ratio-16x9">
+                        <video src="${videoPath}" class="d-block w-100" controls></video>
+                    </div>
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
+                        <a href="${videoPath}" class="btn btn-sm btn-primary" download target="_blank">
+                            <i class="ri-download-line"></i> Download
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            // Indikator carousel
+            carouselIndicatorsHTML += `
+                <button type="button" data-bs-target="#videoGalleryCarousel" data-bs-slide-to="${index}" 
+                        ${isActive ? 'class="active" aria-current="true"' : ''}
+                        aria-label="Video ${index + 1}"></button>
+            `;
+        });
+        
+        // Buat modal dengan carousel
+        const modalHTML = `
+            <div class="modal fade" id="videoGalleryModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Galeri Video Evidence</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <div id="videoGalleryCarousel" class="carousel slide" data-bs-interval="false">
+                                <div class="carousel-indicators">
+                                    ${carouselIndicatorsHTML}
+                                </div>
+                                <div class="carousel-inner">
+                                    ${carouselItemsHTML}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#videoGalleryCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#videoGalleryCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                        </button>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Hapus modal lama jika ada
+        $('#videoGalleryModal').remove();
+        
+        // Tambahkan modal ke body
+        $('body').append(modalHTML);
+        
+        // Tampilkan modal
+        $('#videoGalleryModal').modal('show');
+        
+        // Event untuk hapus modal setelah ditutup
+        $('#videoGalleryModal').on('hidden.bs.modal', function() {
+            $(this).remove();
+        });
+        
+        // Event untuk menghentikan video saat slider berganti
+        $('#videoGalleryCarousel').on('slide.bs.carousel', function() {
+            // Pause all videos when sliding
+            $(this).find('video').each(function() {
+                this.pause();
+            });
+        });
+    }
+    
+    // Fungsi untuk menambahkan toggle evidence di task card
+    function initEvidenceToggle() {
+        // Load evidence untuk semua task card
+        loadTaskEvidence();
+    }
+
+    // Fungsi untuk load evidence task
+    function loadTaskEvidence() {
+        // Ambil semua task ID yang ada di halaman
+        const taskIds = [];
+        
+        // Coba menggunakan tasks-box terlebih dahulu
+        $('.tasks-box').each(function() {
+            const taskId = $(this).data('task-id');
+            if (taskId) taskIds.push(taskId);
+        });
+        
+        // Jika tidak ada tasks-box, coba task-card
+        if (taskIds.length === 0) {
+            $('.task-card').each(function() {
+                const taskId = $(this).data('task-id');
+                if (taskId) taskIds.push(taskId);
+            });
+        }
+        
+        if (taskIds.length === 0) {
+            return;
+        }
+        
+        // Ambil data evidence untuk setiap task
+        taskIds.forEach(taskId => {
+            $.ajax({
+                url: `/maintenance/kanban/task/${taskId}/evidence`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success && response.data && response.data.length > 0) {
+                        // Tambahkan evidence ke task
+                        addEvidenceToTask(taskId, response.data);
+                    }
+                },
+                error: function(xhr) {
+                    // Error, tidak perlu ditampilkan
+                }
+            });
+        });
+    }
+
+    // Fungsi untuk menambahkan evidence ke task card
+    function addEvidenceToTask(taskId, evidenceData) {
+        // Coba cari elemen card dengan tasks-box
+        let $taskCard = $(`.tasks-box[data-task-id="${taskId}"]`);
+        
+        // Jika tidak ditemukan dengan tasks-box, coba dengan task-card
+        if (!$taskCard.length) {
+            $taskCard = $(`.task-card[data-task-id="${taskId}"]`);
+        }
+        
+        // Tidak ditemukan task card
+        if (!$taskCard.length) {
+            return;
+        }
+        
+        // Dapatkan status task dari atribut data-current-status pada task card
+        const taskStatus = $taskCard.data('current-status') || $taskCard.attr('data-current-status');
+        
+        // Hanya tampilkan evidence jika ada data
+        if (evidenceData.length === 0) {
+            return;
+        }
+        
+        // Buat tombol toggle untuk evidence
+        const evidenceToggleHTML = `
+            <div class="evidence-toggle mt-2">
+                <button class="btn btn-sm btn-light text-left w-100 d-flex align-items-center justify-content-between evidence-toggle-btn" 
+                        data-task-id="${taskId}">
+                    <span>
+                        <i class="ri-camera-line me-1"></i>
+                        Evidence (${evidenceData.length})
+                    </span>
+                    <i class="ri-arrow-down-s-line evidence-toggle-icon"></i>
+                </button>
+            </div>
+        `;
+        
+        // Buat HTML untuk preview evidence
+        let evidencePreviewHTML = '';
+        
+        evidenceData.forEach((evidence, index) => {
+            // Simpan data evidence untuk digunakan oleh galeri
+            const evidenceJson = JSON.stringify(evidence)
+                .replace(/"/g, '&quot;'); // Escape quotes untuk HTML attribute
+            
+            // Buat section untuk notes evidence
+            const notesHTML = evidence.notes ? `
+                <div class="evidence-notes p-2 mb-2 bg-light rounded">
+                    <div class="preview-title mb-1">
+                        <span class="fw-bold text-muted fs-sm"><i class="ri-sticky-note-line me-1"></i>Notes</span>
+                    </div>
+                    <p class="mb-0 small">${evidence.notes}</p>
+                </div>
+            ` : '';
+            
+            // Ambil semua foto evidence jika ada
+            let photosPreviewHTML = '';
+            if (evidence.photos && evidence.photos.length > 0) {
+                // Maksimal tampil 3 foto
+                const maxPhotoDisplay = Math.min(3, evidence.photos.length);
+                let photosThumbnailHTML = '';
+                
+                // Buat HTML thumbnail
+                for (let i = 0; i < maxPhotoDisplay; i++) {
+                    const photo = evidence.photos[i];
+                    photosThumbnailHTML += `
+                        <div class="photo-preview-item" data-media-path="${photo.full_url || '/storage/' + photo.path}" data-media-type="image">
+                            <img src="${photo.full_url || '/storage/' + photo.path}" 
+                                 alt="${photo.file_name}" 
+                                 class="rounded-circle" 
+                                 style="width: 40px; height: 40px; object-fit: cover; border-radius: 50% !important; cursor: pointer;">
+                        </div>
+                    `;
+                }
+                
+                // Jika ada lebih dari 3 foto, tambahkan badge +N
+                if (evidence.photos.length > 3) {
+                    photosThumbnailHTML += `
+                        <div class="photo-preview-more evidence-photo-more" style="cursor: pointer;" data-evidence-photos='${evidenceJson}'>
+                            <span class="badge rounded-pill bg-secondary">+${evidence.photos.length - 3}</span>
+                        </div>
+                    `;
+                }
+                
+                // Tambahkan judul dan container
+                photosPreviewHTML = `
+                    <div class="preview-section mt-2">
+                        <div class="preview-title mb-1">
+                            <span class="fw-bold text-muted fs-sm"><i class="ri-image-line me-1"></i>Photos (${evidence.photos.length})</span>
+                        </div>
+                        <div class="task-media-preview d-flex align-items-center gap-2">
+                            ${photosThumbnailHTML}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Ambil semua video evidence jika ada
+            let videosPreviewHTML = '';
+            if (evidence.videos && evidence.videos.length > 0) {
+                // Maksimal tampil 3 video
+                const maxVideoDisplay = Math.min(3, evidence.videos.length);
+                let videosThumbnailHTML = '';
+                
+                // Buat HTML thumbnail
+                for (let i = 0; i < maxVideoDisplay; i++) {
+                    const video = evidence.videos[i];
+                    videosThumbnailHTML += `
+                        <div class="video-preview-item" data-media-path="${video.full_url || '/storage/' + video.path}" data-media-type="video">
+                            <div class="video-thumbnail position-relative" style="width: 40px; height: 40px;">
+                                <div class="bg-dark rounded-circle" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                    <i class="ri-play-fill text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Jika ada lebih dari 3 video, tambahkan badge +N
+                if (evidence.videos.length > 3) {
+                    videosThumbnailHTML += `
+                        <div class="video-preview-more evidence-video-more" style="cursor: pointer;" data-evidence-videos='${evidenceJson}'>
+                            <span class="badge rounded-pill bg-secondary">+${evidence.videos.length - 3}</span>
+                        </div>
+                    `;
+                }
+                
+                // Tambahkan judul dan container
+                videosPreviewHTML = `
+                    <div class="preview-section mt-2">
+                        <div class="preview-title mb-1">
+                            <span class="fw-bold text-muted fs-sm"><i class="ri-movie-line me-1"></i>Videos (${evidence.videos.length})</span>
+                        </div>
+                        <div class="task-video-preview d-flex align-items-center gap-2">
+                            ${videosThumbnailHTML}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Info pembuat evidence
+            const createdInfo = `
+                <div class="evidence-info d-flex justify-content-between align-items-center mt-2">
+                    <small class="text-muted">${evidence.created_at_formatted || formatDate(evidence.created_at)}</small>
+                    <small class="text-muted">by ${evidence.creator_name || 'Unknown'}</small>
+                </div>
+            `;
+            
+            // Gabungkan semua bagian evidence
+            evidencePreviewHTML += `
+                <div class="evidence-item p-2 mb-2 border-bottom" data-evidence-id="${evidence.id}">
+                    ${notesHTML}
+                    ${photosPreviewHTML}
+                    ${videosPreviewHTML}
+                    ${createdInfo}
+                </div>
+            `;
+        });
+        
+        // Gabungkan menjadi evidence content
+        const evidenceContentHTML = `
+            <div class="evidence-content" style="display: none;">
+                <div class="evidence-preview mt-2">
+                    ${evidencePreviewHTML}
+                </div>
+            </div>
+        `;
+        
+        // Gabungkan toggle dan content evidence
+        const evidenceHTML = `
+            <div class="evidence-section">
+                ${evidenceToggleHTML}
+                ${evidenceContentHTML}
+            </div>
+        `;
+        
+        // Cek apakah sudah ada evidence-section, jika ada, ganti. Jika tidak, tambahkan
+        if ($taskCard.find('.evidence-section').length) {
+            $taskCard.find('.evidence-section').replaceWith(evidenceHTML);
+                } else {
+            // Cek apakah ada media-section, jika ada tambahkan setelahnya, jika tidak, tambahkan di akhir card-body
+            if ($taskCard.find('.media-section').length) {
+                $taskCard.find('.media-section').after(evidenceHTML);
+            } else {
+                $taskCard.find('.card-body').append(evidenceHTML);
+            }
+        }
+    }
+
+    // Helper function untuk format tanggal
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    // Return API publik
+    return {
+        init: init
+    };
+})();
+
+// Inisialisasi aplikasi saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    EvidenceApp.init();
+});

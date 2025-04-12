@@ -62,8 +62,8 @@ class ReportFJController extends Controller
             $data = $query->get();
 
             $this->logActivity(
-                'REPORT',
-                'view',
+                'report_fj',
+                'VIEW',
                 'Melihat Report FJ dari tanggal ' . $request->start_date . ' sampai ' . $request->end_date,
                 null,
                 null
@@ -275,7 +275,7 @@ class ReportFJController extends Controller
             $writer->save('php://output');
 
             $this->logActivity(
-                'REPORT',
+                'report_fj',
                 'EXPORT',
                 'Men-download Report FJ dari tanggal ' . $request->start_date . ' sampai ' . $request->end_date,
                 null,

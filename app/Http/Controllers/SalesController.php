@@ -154,7 +154,7 @@ class SalesController extends Controller
             session(['preview_data' => $salesData]);
             
             $this->logActivity(
-                'SALES',
+                'sales',
                 'VIEW',
                 'Melihat preview data penjualan yang diupload',
                 null,
@@ -363,7 +363,7 @@ class SalesController extends Controller
             \Log::info($successMessage);
 
             $this->logActivity(
-                'SALES',
+                'sales',
                 'CREATE',
                 $successMessage,
                 null,
@@ -500,7 +500,7 @@ class SalesController extends Controller
             // ... kode upload yang sudah ada ...
 
             $this->logActivity(
-                'SALES',
+                'sales',
                 'UPLOAD',
                 'Mengupload data penjualan dari Excel',
                 null,

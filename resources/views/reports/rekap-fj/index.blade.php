@@ -230,13 +230,20 @@
                         response.data.forEach(function(row) {
                             html += `
                                 <tr>
-                                    <td>${row.customer_name}</td>
-                                    <td class="text-end">${formatNumber(row.main_kitchen_total)}</td>
-                                    <td class="text-end">${formatNumber(row.main_store_total)}</td>
-                                    <td class="text-end">${formatNumber(row.chemical_total)}</td>
-                                    <td class="text-end">${formatNumber(row.stationary_total)}</td>
-                                    <td class="text-end">${formatNumber(row.marketing_total)}</td>
-                                    <td class="text-end">${formatNumber(row.line_total)}</td>
+                                    <td>${row.warehouse_name}</td>
+                                    <td>${row.item_name}</td>
+                                    <td colspan="5">
+                                        <pre style="white-space: pre-wrap;">
+Item ID: ${row.debug_info.item_id}
+Stock on Hand: ${row.debug_info.original_stock_on_hand}
+Small Unit: ${row.debug_info.units.small}
+Medium Unit: ${row.debug_info.units.medium} (1 = ${row.debug_info.small_conversion_qty} ${row.debug_info.units.small})
+Large Unit: ${row.debug_info.units.large} (1 = ${row.debug_info.medium_conversion_qty} ${row.debug_info.units.medium})
+Moving Average Cost: ${formatNumber(row.debug_info.moving_average_cost)}
+Last Purchase Price: ${formatNumber(row.debug_info.last_purchase_price)}
+Total Value: ${formatNumber(row.debug_info.total_value)}
+                                        </pre>
+                                    </td>
                                 </tr>`;
                         });
                         

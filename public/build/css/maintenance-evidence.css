@@ -1,0 +1,40 @@
+/* Style untuk modal preview gambar */
+.image-preview-container {
+    position: relative;
+    background-color: #000;
+}
+
+.image-preview-container img {
+    display: block;
+    margin: 0 auto;
+    max-height: 80vh;
+    width: auto;
+    object-fit: contain;
+}
+
+.image-preview-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-preview-container:hover .image-preview-actions {
+    opacity: 1;
+}
+
+#imagePreviewModal .modal-content {
+    background-color: #000;
+    border: none;
+}
+
+#imagePreviewModal .modal-header {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(0,0,0,0.8);
+}
+
+#imagePreviewModal .modal-title {
+    color: #fff;
+}
+
+#imagePreviewModal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+} 

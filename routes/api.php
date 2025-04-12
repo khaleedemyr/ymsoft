@@ -17,3 +17,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('suppliers/{supplier}', function (App\Models\Supplier $supplier) {
+    return response()->json([
+        'id' => $supplier->id,
+        'payment_terms' => $supplier->payment_terms,
+        // tambahkan field lain yang diperlukan
+    ]);
+});
