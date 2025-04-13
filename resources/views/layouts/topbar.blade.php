@@ -193,7 +193,7 @@
                 @if(auth()->user()->signature_path)
                     <div class="mt-3">
                         <h6>@lang('translation.current_signature'):</h6>
-                        <img src="{{ asset('storage/' . auth()->user()->signature_path) }}" alt="Current Signature" class="img-fluid mt-2" style="max-width: 300px; height: auto;">
+                        <img src="/storage/app/public/{{ auth()->user()->signature_path }}" alt="Current Signature" class="img-fluid mt-2" style="max-width: 300px; height: auto;">
                     </div>
                 @endif
             </div>

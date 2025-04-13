@@ -687,7 +687,7 @@
             <div class="d-flex gap-1 mb-1">
                 @foreach($firstRowImages as $image)
                     @php
-                        $imagePath = asset('storage/' . $image->path);
+                        $imagePath = '/storage/app/public/' . $image->path;
                     @endphp
                     <a href="{{ $imagePath }}" 
                        target="_blank">
@@ -705,7 +705,7 @@
             <div class="d-flex gap-1">
                 @foreach($secondRowImages as $image)
                     @php
-                        $imagePath = asset('storage/' . $image->path);
+                        $imagePath = '/storage/app/public/' . $image->path;
                     @endphp
                     <a href="{{ $imagePath }}" 
                        target="_blank">
@@ -723,7 +723,7 @@
                     <div class="more-images-container" style="display: none;">
                         @foreach($allImages->skip(3) as $image)
                             @php
-                                $imagePath = asset('storage/' . $image->path);
+                                $imagePath = '/storage/app/public/' . $image->path;
                             @endphp
                             <a href="{{ $imagePath }}" 
                                target="_blank">

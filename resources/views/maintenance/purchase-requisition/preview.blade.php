@@ -286,7 +286,7 @@
                     <div class="approval-title">Dibuat Oleh</div>
                     @if($pr->creator->signature_path)
                         <div class="signature-image">
-                            <img src="{{ asset('storage/' . $pr->creator->signature_path) }}" alt="Tanda Tangan">
+                            <img src="/storage/app/public/{{ $pr->creator->signature_path }}" alt="Tanda Tangan">
                         </div>
                     @else
                         <div class="signature-line"></div>
@@ -298,7 +298,7 @@
                     <div class="approval-title">Disetujui Oleh</div>
                     @if($pr->chief_engineering_approval == 'APPROVED' && $pr->chiefEngineeringApprover->signature_path)
                         <div class="signature-image">
-                            <img src="{{ asset('storage/' . $pr->chiefEngineeringApprover->signature_path) }}" alt="Tanda Tangan">
+                            <img src="/storage/app/public/{{ $pr->chiefEngineeringApprover->signature_path }}" alt="Tanda Tangan">
                         </div>
                     @else
                         <div class="signature-line"></div>
@@ -320,7 +320,7 @@
                     <div class="approval-title">Disetujui Oleh</div>
                     @if($pr->purchasing_manager_approval == 'APPROVED' && $pr->purchasingManagerApprover->signature_path)
                         <div class="signature-image">
-                            <img src="{{ asset('storage/' . $pr->purchasingManagerApprover->signature_path) }}" alt="Tanda Tangan">
+                            <img src="/storage/app/public/{{ $pr->purchasingManagerApprover->signature_path }}" alt="Tanda Tangan">
                         </div>
                     @else
                         <div class="signature-line"></div>
@@ -348,7 +348,7 @@
                     <div class="approval-title">Mengetahui dan Menyetujui</div>
                     @if($pr->coo_approval == 'APPROVED' && $pr->cooApprover->signature_path)
                         <div class="signature-image">
-                            <img src="{{ asset('storage/' . $pr->cooApprover->signature_path) }}" alt="Tanda Tangan">
+                            <img src="/storage/app/public/{{ $pr->cooApprover->signature_path }}" alt="Tanda Tangan">
                         </div>
                     @else
                         <div class="signature-line"></div>

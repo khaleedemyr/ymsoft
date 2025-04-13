@@ -3184,7 +3184,7 @@
                         // Buat array untuk item media (untuk lightbox/modal)
                         photoItems = task.photos.map(photo => ({
                             id: photo.id,
-                            path: `/storage/${photo.file_path}`,
+                            path: `/storage/app/public/${photo.file_path}`,
                             name: photo.file_name
                         }));
                         
@@ -3193,7 +3193,7 @@
                         for (let i = 0; i < Math.min(3, photoCount); i++) {
                             previewHTML += `
                                 <div class="photo-preview-item" data-media-index="${i}" data-task-id="${task.id}">
-                                    <img src="/storage/${task.photos[i].file_path}" alt="${task.photos[i].file_name}" 
+                                    <img src="/storage/app/public/${task.photos[i].file_path}" alt="${task.photos[i].file_name}" 
                                          class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50% !important;">
                                 </div>
                             `;
@@ -3236,7 +3236,7 @@
                         // Buat array untuk item video (untuk modal)
                         videoItems = task.videos.map(video => ({
                             id: video.id,
-                            path: `/storage/${video.file_path}`,
+                            path: `/storage/app/public/${video.file_path}`,
                             name: video.file_name
                         }));
                         
@@ -3289,7 +3289,7 @@
                         // Buat array untuk item dokumen
                         docItems = task.documents.map(doc => ({
                             id: doc.id,
-                            path: `/storage/${doc.file_path}`,
+                            path: `/storage/app/public/${doc.file_path}`,
                             name: doc.file_name,
                             type: doc.file_type
                         }));
@@ -4145,7 +4145,7 @@
                                     attachmentsHTML = '<div class="comment-attachments-gallery d-flex flex-wrap gap-2 mt-2">';
                                     
                                     comment.attachments.forEach(attachment => {
-                                        const mediaPath = `/storage/${attachment.file_path}`;
+                                        const mediaPath = `/storage/app/public/${attachment.file_path}`;
                                         
                                         if (attachment.file_type.startsWith('image/')) {
                                             // Image

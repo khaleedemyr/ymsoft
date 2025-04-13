@@ -268,6 +268,30 @@
                     <td class="text-end">{{ number_format($item->price, 0, ',', '.') }}</td>
                     <td class="text-end">{{ number_format($item->subtotal, 0, ',', '.') }}</td>
                 </tr>
+                @if ($item->media_path)
+                    @if (in_array(pathinfo($item->media_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png', 'gif']))
+                        <tr>
+                            <td colspan="8" style="text-align: center;">
+                                <img src="/storage/app/public/{{ $item->media_path }}" alt="Media" class="img-fluid" style="max-width: 300px;">
+                            </td>
+                        </tr>
+                    @elseif (in_array(pathinfo($item->media_path, PATHINFO_EXTENSION), ['mp4', 'webm', 'ogg']))
+                        <tr>
+                            <td colspan="8" style="text-align: center;">
+                                <video width="300" controls>
+                                    <source src="/storage/app/public/{{ $item->media_path }}" type="video/{{ pathinfo($item->media_path, PATHINFO_EXTENSION) }}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td colspan="8" style="text-align: center;">
+                                <a href="/storage/app/public/{{ $item->media_path }}" target="_blank" class="btn btn-primary">View Media</a>
+                            </td>
+                        </tr>
+                    @endif
+                @endif
                 @endforeach
             </tbody>
             <tfoot>

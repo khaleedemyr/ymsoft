@@ -637,7 +637,7 @@
                         $('#poDetailModal .invoice-date').text(po.invoice_date ? formatDate(po.invoice_date) : '-');
                         
                         // Update invoice image dengan URL yang benar
-                        const invoiceImageUrl = `/storage/${po.invoice_file_path}`;
+                        const invoiceImageUrl = `/storage/app/public/${po.invoice_file_path}`;
                         $('#poDetailModal .invoice-image').attr('src', invoiceImageUrl);
                         
                         // Show invoice section

@@ -501,3 +501,25 @@ Route::resource('maintenance/tasks', 'App\Http\Controllers\Maintenance\TaskContr
 // Route untuk task status report
 Route::get('/maintenance/reports/task-status', [App\Http\Controllers\Maintenance\ReportController::class, 'taskStatusReport'])
     ->name('maintenance.task-status-report');
+
+Route::get('/maintenance/dashboard/export-tasks-by-member', 'App\Http\Controllers\Maintenance\DashboardController@exportTasksByMember')
+    ->name('maintenance.dashboard.export-tasks-by-member');
+
+Route::get('/maintenance/dashboard/export-tasks-by-priority', 'App\Http\Controllers\Maintenance\DashboardController@exportTasksByPriority')
+    ->name('maintenance.dashboard.export-tasks-by-priority');
+
+Route::get('/maintenance/dashboard/activities', [DashboardController::class, 'getAllActivities'])
+    ->name('maintenance.dashboard.activities');
+
+Route::get('/maintenance/dashboard/activities/export', 'App\Http\Controllers\Maintenance\DashboardController@exportActivities')
+    ->name('maintenance.dashboard.activities.export');
+
+// Evidence gallery routes
+Route::prefix('maintenance/dashboard')->name('maintenance.dashboard.')->group(function () {
+    Route::get('/get-evidence-outlets', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceOutlets'])->name('get-evidence-outlets');
+    Route::get('/get-evidence-rukos', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceRukos'])->name('get-evidence-rukos');
+    Route::get('/get-evidence-dates', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceDates'])->name('get-evidence-dates');
+    Route::get('/get-evidence-tasks', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceTasks'])->name('get-evidence-tasks');
+    Route::get('/get-evidence-files', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceFiles'])->name('get-evidence-files');
+    Route::get('/get-all-evidence', [App\Http\Controllers\Maintenance\DashboardController::class, 'getAllEvidence'])->name('get-all-evidence');
+});
