@@ -346,7 +346,8 @@ function loadTaskComments(taskId) {
                         attachmentsHTML = '<div class="comment-attachments-gallery d-flex flex-wrap gap-2 mt-2">';
                         
                         comment.attachments.forEach(attachment => {
-                            const mediaPath = `/storage/maintenance/comments/${attachment.file_path.split('/').pop()}`;
+                            // Gunakan path lengkap dari database
+                            const mediaPath = `/storage/${attachment.file_path}`;
                             
                             if (attachment.file_type.startsWith('image/')) {
                                 // Image
