@@ -3024,6 +3024,9 @@
                 // Debug task info
                 console.log(`Creating task card for task ID: ${task.id}, status: ${task.status}`);
                 
+                // Deklarasi variabel documentPreview di awal fungsi
+                let documentPreview = '';
+                
                 // Format created_at date untuk tampilan
                 const createdDate = task.created_at ? new Date(task.created_at) : new Date();
                 const formattedDate = createdDate.toLocaleDateString('id-ID', {
