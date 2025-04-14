@@ -347,7 +347,7 @@ function loadTaskComments(taskId) {
                         
                         comment.attachments.forEach(attachment => {
                             // Gunakan path lengkap dari database
-                            const mediaPath = `/storage/${attachment.file_path}`;
+                            const mediaPath = `/storage/app/public/${attachment.file_path}`;
                             
                             if (attachment.file_type.startsWith('image/')) {
                                 // Image

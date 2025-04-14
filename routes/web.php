@@ -42,9 +42,11 @@ use App\Http\Controllers\MaintenanceUnitController;
 use App\Http\Controllers\MaintenanceEvidenceController;
 use App\Http\Controllers\Maintenance\DashboardController;
 use App\Http\Controllers\Maintenance\ReportController;
+use App\Http\Controllers\DailyCheckController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -181,6 +183,34 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('packing-lists', PackingListController::class);
     Route::get('packing-lists/{id}/details', [PackingListController::class, 'getDetails']);
+
+    // Daily Check Routes
+    Route::prefix('daily-check')->name('daily-check.')->group(function() {
+        Route::get('/', [DailyCheckController::class, 'index'])->name('index');
+        Route::get('/list', [DailyCheckController::class, 'list'])->name('list');
+        Route::get('/create', [DailyCheckController::class, 'create'])->name('create');
+        Route::post('/autosave', [DailyCheckController::class, 'autosave'])->name('autosave');
+        Route::post('/store', [DailyCheckController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [DailyCheckController::class, 'edit'])->name('edit');
+        Route::get('/show/{id}', [DailyCheckController::class, 'show'])->name('show');
+        Route::delete('/{id}', [DailyCheckController::class, 'destroy'])->name('destroy');
+        Route::delete('/photos/{id}', [DailyCheckController::class, 'deletePhoto'])->name('photos.destroy');
+        Route::post('/upload-photo', [DailyCheckController::class, 'uploadPhoto'])->name('upload-photo');
+        Route::post('/delete-photo', [DailyCheckController::class, 'deletePhoto'])->name('delete-photo');
+        
+        // Debug route
+        Route::get('/debug/{id?}', [DailyCheckController::class, 'debug'])->name('debug');
+    });
+
+    Route::get('/daily-check', [DailyCheckController::class, 'index'])->name('daily-check.index');
+    Route::get('/daily-check/create', [DailyCheckController::class, 'create'])->name('daily-check.create');
+    Route::post('/daily-check', [DailyCheckController::class, 'store'])->name('daily-check.store');
+    Route::post('/daily-check/autosave', [DailyCheckController::class, 'autosave'])->name('daily-check.autosave');
+    Route::get('/daily-check/list', [DailyCheckController::class, 'list'])->name('daily-check.list');
+    Route::get('/daily-check/{dailyCheck}', [DailyCheckController::class, 'show'])->name('daily-check.show');
+    Route::get('/daily-check/{dailyCheck}/edit', [DailyCheckController::class, 'edit'])->name('daily-check.edit');
+    Route::put('/daily-check/{dailyCheck}', [DailyCheckController::class, 'update'])->name('daily-check.update');
+    Route::delete('/daily-check/{dailyCheck}', [DailyCheckController::class, 'destroy'])->name('daily-check.destroy');
 
     Route::get('/{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
@@ -345,6 +375,56 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/maintenance/kanban/upload-evidence', [MaintenanceKanbanController::class, 'uploadEvidence'])->name('maintenance.kanban.upload-evidence');
     Route::get('/maintenance/kanban/task/{taskId}/evidence', [MaintenanceKanbanController::class, 'getTaskEvidence'])->name('maintenance.kanban.task-evidence');
+
+    // Routes untuk timeline dan delete task
+    Route::get('/maintenance/tasks/{taskId}/timeline', [MaintenanceKanbanController::class, 'getTaskTimeline']);
+    Route::delete('/maintenance/tasks/{taskId}', [MaintenanceKanbanController::class, 'destroy']);
+
+    // Route untuk mendapatkan detail task
+    Route::get('/maintenance/tasks/{taskId}', [MaintenanceKanbanController::class, 'getTask'])->name('maintenance.getTask');
+
+    // Route untuk mendapatkan members dari sebuah task
+    Route::get('/maintenance/tasks/{taskId}/members', [MaintenanceKanbanController::class, 'getTaskMembers']);
+
+    // Route untuk update members sebuah task
+    Route::post('/maintenance/tasks/{taskId}/update-members', [MaintenanceKanbanController::class, 'updateTaskMembers']);
+
+    Route::get('/maintenance/task/{taskId}/pr/stats', [MaintenancePurchaseRequisitionController::class, 'getTaskPrStats']);
+
+    Route::get('/maintenance/pr/{id}/download-pdf', [MaintenancePurchaseRequisitionController::class, 'downloadPdf'])
+        ->name('maintenance.pr.download-pdf');
+
+    Route::post('/maintenance/kanban/check-done-requirements', [MaintenanceKanbanController::class, 'checkDoneRequirements'])->name('maintenance.checkDoneRequirements');
+
+    Route::get('/maintenance/dashboard', [DashboardController::class, 'index'])->name('maintenance.dashboard');
+
+    Route::resource('maintenance/tasks', 'App\Http\Controllers\Maintenance\TaskController');
+
+    // Route untuk task status report
+    Route::get('/maintenance/reports/task-status', [App\Http\Controllers\Maintenance\ReportController::class, 'taskStatusReport'])
+        ->name('maintenance.task-status-report');
+
+    Route::get('/maintenance/dashboard/export-tasks-by-member', 'App\Http\Controllers\Maintenance\DashboardController@exportTasksByMember')
+        ->name('maintenance.dashboard.export-tasks-by-member');
+
+    Route::get('/maintenance/dashboard/export-tasks-by-priority', 'App\Http\Controllers\Maintenance\DashboardController@exportTasksByPriority')
+        ->name('maintenance.dashboard.export-tasks-by-priority');
+
+    Route::get('/maintenance/dashboard/activities', [DashboardController::class, 'getAllActivities'])
+        ->name('maintenance.dashboard.activities');
+
+    Route::get('/maintenance/dashboard/activities/export', 'App\Http\Controllers\Maintenance\DashboardController@exportActivities')
+        ->name('maintenance.dashboard.activities.export');
+
+    // Evidence gallery routes
+    Route::prefix('maintenance/dashboard')->name('maintenance.dashboard.')->group(function () {
+        Route::get('/get-evidence-outlets', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceOutlets'])->name('get-evidence-outlets');
+        Route::get('/get-evidence-rukos', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceRukos'])->name('get-evidence-rukos');
+        Route::get('/get-evidence-dates', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceDates'])->name('get-evidence-dates');
+        Route::get('/get-evidence-tasks', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceTasks'])->name('get-evidence-tasks');
+        Route::get('/get-evidence-files', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceFiles'])->name('get-evidence-files');
+        Route::get('/get-all-evidence', [App\Http\Controllers\Maintenance\DashboardController::class, 'getAllEvidence'])->name('get-all-evidence');
+    });
 });
 
 Route::prefix('reports')->name('reports.')->group(function () {
@@ -523,3 +603,6 @@ Route::prefix('maintenance/dashboard')->name('maintenance.dashboard.')->group(fu
     Route::get('/get-evidence-files', [App\Http\Controllers\Maintenance\DashboardController::class, 'getEvidenceFiles'])->name('get-evidence-files');
     Route::get('/get-all-evidence', [App\Http\Controllers\Maintenance\DashboardController::class, 'getAllEvidence'])->name('get-all-evidence');
 });
+
+// Test route for debugging
+Route::post('/test-request', [TestController::class, 'testRequest'])->name('test.request');

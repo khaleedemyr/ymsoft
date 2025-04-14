@@ -1604,6 +1604,43 @@ return [
             'error_loading' => 'Failed to load data'
     ]
 ],
+    // Daily Check Translations
+    'daily_check' => [
+        'title' => 'Daily Check',
+        'list' => 'Daily Check List',
+        'add' => 'Add Daily Check',
+        'detail' => 'Daily Check Detail',
+        'edit' => 'Edit Daily Check',
+        'edit_form' => 'Daily Check Edit Form',
+        'information' => 'Daily Check Information',
+        'view_photo' => 'View Photo',
+        'time' => 'Time',
+        'other_issue' => 'Other Issue',
+        'remark' => 'Remark',
+        'photos' => 'Photos',
+        'confirm_delete_photo' => 'Are you sure you want to delete this photo?',
+        'error_save' => 'An error occurred while saving data',
+        'table' => [
+            'date' => 'Date',
+            'outlet' => 'Outlet',
+            'created_by' => 'Created By',
+            'created_at' => 'Created At',
+            'action' => 'Action',
+            'search_placeholder' => 'Search daily check data...'
+        ],
+        'message' => [
+            'no_data' => 'No daily check data available',
+            'confirm_delete' => 'Are you sure you want to delete this daily check?',
+            'success_delete' => 'Daily check deleted successfully',
+            'error_delete' => 'Failed to delete daily check'
+        ],
+        'condition' => [
+            'C' => 'Clean',
+            'WM' => 'Need Maintenance',
+            'D' => 'Dirty',
+            'NA' => 'Not Available'
+        ]
+    ],
 ];
 ?>
 

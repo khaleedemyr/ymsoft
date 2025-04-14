@@ -1682,6 +1682,37 @@ return [
             'error_approve' => 'Terjadi kesalahan saat menyetujui pembayaran',
             'error_reject' => 'Terjadi kesalahan saat menolak pembayaran',
         ],
+    ],
+    // Daily Check Translations
+    'daily_check' => [
+        'title' => 'Daily Check',
+        'list' => 'Daftar Daily Check',
+        'add' => 'Tambah Daily Check',
+        'detail' => 'Detail Daily Check',
+        'edit' => 'Edit Daily Check',
+        'edit_form' => 'Form Edit Daily Check',
+        'information' => 'Informasi Daily Check',
+        'view_photo' => 'Lihat Foto',
+        'time' => 'Waktu',
+        'other_issue' => 'Masalah Lain',
+        'remark' => 'Catatan',
+        'photos' => 'Foto-foto',
+        'confirm_delete_photo' => 'Apakah Anda yakin ingin menghapus foto ini?',
+        'error_save' => 'Terjadi kesalahan saat menyimpan data',
+        'table' => [
+            'date' => 'Tanggal',
+            'outlet' => 'Outlet',
+            'created_by' => 'Dibuat Oleh',
+            'created_at' => 'Waktu Dibuat',
+            'action' => 'Aksi',
+            'search_placeholder' => 'Cari data daily check...'
+        ],
+        'message' => [
+            'no_data' => 'Belum ada data daily check',
+            'confirm_delete' => 'Apakah Anda yakin ingin menghapus daily check ini?',
+            'success_delete' => 'Daily check berhasil dihapus',
+            'error_delete' => 'Gagal menghapus daily check'
+        ]
     ]
 ];
 ?> 

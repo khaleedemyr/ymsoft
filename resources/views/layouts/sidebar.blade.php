@@ -480,6 +480,92 @@
                         @endif
                     </li>
 
+                    <!-- Daily Check Menu -->
+                    <li class="nav-item">
+                        @php
+                            $dailyCheckMenus = auth()->user()->roles->first()->permissions()
+                                ->whereIn('menu_id', function($query) {
+                                    $query->select('id')
+                                        ->from('menus')
+                                        ->where('parent_id', function($subquery) {
+                                            $subquery->select('id')
+                                                ->from('menus')
+                                                ->where('slug', 'daily-check');
+                                        });
+                                })
+                                ->where('can_view', 1)
+                                ->get();
+                        @endphp
+
+                        @if($dailyCheckMenus->count() > 0)
+                            <a class="nav-link menu-link" href="#sidebarDailyCheck" data-bs-toggle="collapse" role="button" 
+                                aria-expanded="false" aria-controls="sidebarDailyCheck">
+                                <i class="ri-clipboard-check-line"></i> 
+                                <span>Daily Check</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="sidebarDailyCheck">
+                                <ul class="nav nav-sm flex-column">
+                                    @foreach($dailyCheckMenus as $permission)
+                                        @php
+                                            $menu = \App\Models\Menu::find($permission->menu_id);
+                                        @endphp
+                                        @if($menu)
+                                            <li class="nav-item">
+                                                <a href="{{ route($menu->route) }}" class="nav-link">
+                                                    <i class="{{ $menu->icon }}"></i> 
+                                                    <span>{{ $menu->name }}</span>
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </li>
+
+                    <!-- Operational Tools Menu -->
+                    <li class="nav-item">
+                        @php
+                            $operationalToolsMenus = auth()->user()->roles->first()->permissions()
+                                ->whereIn('menu_id', function($query) {
+                                    $query->select('id')
+                                        ->from('menus')
+                                        ->where('parent_id', function($subquery) {
+                                            $subquery->select('id')
+                                                ->from('menus')
+                                                ->where('slug', 'operational-tools');
+                                        });
+                                })
+                                ->where('can_view', 1)
+                                ->get();
+                        @endphp
+
+                        @if($operationalToolsMenus->count() > 0)
+                            <a class="nav-link menu-link" href="#sidebarOperationalTools" data-bs-toggle="collapse" role="button" 
+                                aria-expanded="false" aria-controls="sidebarOperationalTools">
+                                <i class="ri-survey-line"></i> 
+                                <span>Operational Tools</span>
+                            </a>
+                            <div class="collapse menu-dropdown" id="sidebarOperationalTools">
+                                <ul class="nav nav-sm flex-column">
+                                    @foreach($operationalToolsMenus as $permission)
+                                        @php
+                                            $menu = \App\Models\Menu::find($permission->menu_id);
+                                        @endphp
+                                        @if($menu)
+                                            <li class="nav-item">
+                                                <a href="{{ route($menu->route) }}" class="nav-link">
+                                                    <i class="{{ $menu->icon }}"></i> 
+                                                    <span>{{ $menu->name }}</span>
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </li>
+
                 </ul>
             </div>
         </div>
