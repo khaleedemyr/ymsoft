@@ -318,7 +318,7 @@
         <div style="display: flex; flex-wrap: wrap; gap: 10px;">
             @foreach($taskPhotos as $photo)
                 <div style="width: 200px; margin-bottom: 10px;">
-                    <img src="{{ asset('storage/' . $photo->file_path) }}" 
+                    <img src="{{ asset('storage/app/public/' . $photo->file_path) }}" 
                          alt="{{ $photo->file_name }}" 
                          style="width: 100%; height: 200px; object-fit: cover; border: 1px solid #ddd;">
                 </div>
@@ -334,7 +334,7 @@
                     <div class="approval-title">Dibuat Oleh</div>
                     @if($ba->creator->signature_path)
                         <div class="signature-image">
-                            <img src="{{ asset('storage/' . $ba->creator->signature_path) }}" alt="Tanda Tangan">
+                            <img src="{{ asset('storage/app/public/' . $ba->creator->signature_path) }}" alt="Tanda Tangan">
                         </div>
                     @else
                         <div class="signature-line"></div>
@@ -349,7 +349,7 @@
                     <div class="approval-title">Disetujui Oleh</div>
                     @if($ba->chief_engineering_approval == 'APPROVED' && $ba->chiefEngineeringApprover->signature_path)
                         <div class="signature-image">
-                            <img src="{{ asset('storage/' . $ba->chiefEngineeringApprover->signature_path) }}" alt="Tanda Tangan">
+                            <img src="{{ asset('storage/app/public/' . $ba->chiefEngineeringApprover->signature_path) }}" alt="Tanda Tangan">
                         </div>
                     @else
                         <div class="signature-line"></div>
@@ -377,7 +377,7 @@
                     <div class="approval-title">Mengetahui dan Menyetujui</div>
                     @if($ba->coo_approval == 'APPROVED' && $ba->cooApprover->signature_path)
                         <div class="signature-image">
-                            <img src="{{ asset('storage/' . $ba->cooApprover->signature_path) }}" alt="Tanda Tangan">
+                            <img src="{{ asset('storage/app/public/' . $ba->cooApprover->signature_path) }}" alt="Tanda Tangan">
                         </div>
                     @else
                         <div class="signature-line"></div>
