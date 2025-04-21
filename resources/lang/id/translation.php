@@ -1712,7 +1712,16 @@ return [
             'confirm_delete' => 'Apakah Anda yakin ingin menghapus daily check ini?',
             'success_delete' => 'Daily check berhasil dihapus',
             'error_delete' => 'Gagal menghapus daily check'
-        ]
+        ],
+        'condition' => [
+            'C' => 'Bersih',
+            'WM' => 'Perlu Perawatan',
+            'D' => 'Kotor',
+            'NA' => 'Tidak Tersedia'
+        ],
+        'area_item' => 'Area/Item',
+        'condition' => 'Kondisi',
+        'add_photo' => 'Tambah Foto'
     ]
 ];
 ?> 

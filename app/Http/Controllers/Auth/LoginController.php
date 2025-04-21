@@ -58,4 +58,31 @@ class LoginController extends Controller
             'email' => 'The provided credentials do not match our records or your account is inactive.',
         ]);
     }
+    public function apiLogin(Request $request)
+{
+    $credentials = $request->only('email', 'password');
+    $user = User::where('email', $credentials['email'])->where('status', 'A')->first();
+
+    if ($user && Auth::attempt($credentials)) {
+        $token = $user->createToken('auth-token')->plainTextToken;
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+            'success' => true
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Invalid credentials or account is inactive',
+        'success' => false
+    ], 401);
+}
+
+public function check(Request $request)
+{
+    return response()->json([
+        'user' => $request->user(),
+        'authenticated' => true
+    ]);
+}
 }
