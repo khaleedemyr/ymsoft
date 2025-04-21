@@ -43,10 +43,12 @@ use App\Http\Controllers\MaintenanceEvidenceController;
 use App\Http\Controllers\Maintenance\DashboardController;
 use App\Http\Controllers\Maintenance\ReportController;
 use App\Http\Controllers\DailyCheckController;
+use App\Http\Controllers\CalendarEventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Maintenance\TaskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,11 +70,21 @@ Auth::routes();
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
 Route::get('index/{locale}',[App\Http\Controllers\HomeController::class, 'lang']);
 
-Route::post('/login', [LoginController::class, 'login'])->name('login');
-
 Route::post('/signature/upload', [SignatureController::class, 'upload'])->name('signature.upload');
 
 Route::middleware(['auth'])->group(function () {
+    // Calendar Events Routes
+    Route::prefix('calendar')->name('calendar.')->group(function () {
+        Route::get('/', [CalendarEventController::class, 'index'])->name('index');
+        Route::get('/events', [CalendarEventController::class, 'getEvents'])->name('events');
+        Route::get('/upcoming', [CalendarEventController::class, 'upcoming'])->name('upcoming');
+        Route::get('/activities', [CalendarEventController::class, 'activities'])->name('activities');
+        Route::post('/', [CalendarEventController::class, 'store'])->name('store');
+        Route::get('/{event}', [CalendarEventController::class, 'show'])->name('show');
+        Route::put('/{event}', [CalendarEventController::class, 'update'])->name('update');
+        Route::delete('/{event}', [CalendarEventController::class, 'destroy'])->name('destroy');
+    });
+
     Route::resource('categories', CategoryController::class);
     Route::resource('sub-categories', SubCategoryController::class);
     Route::put('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');

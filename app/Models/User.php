@@ -195,4 +195,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(MaintenancePurchaseOrder::class, 'updated_by');
     }
+
+    public function calendarActivities()
+    {
+        return $this->hasMany(CalendarActivity::class, 'user_id');
+    }
+
+    // Avatar untuk user, default jika tidak ada
+    public function getAvatarAttribute()
+    {
+        // Di sini bisa tambahkan logika untuk mendapatkan avatar dari storage jika ada
+        return 'build/images/users/avatar-default.jpg';
+    }
 }

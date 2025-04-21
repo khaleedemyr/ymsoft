@@ -67,7 +67,7 @@
                         <div class="card-body">
                             <div>
                                 <div class="table-responsive table-card mb-1">
-                                    <table id="datatable" class="table align-middle table-nowrap">
+                                    <table id="userDataTable" class="table align-middle table-nowrap">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
@@ -158,14 +158,22 @@
 <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
+<!-- App js -->
+<script src="{{ URL::asset('build/js/app.js') }}"></script>
+
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
     $(document).ready(function() {
+        // Periksa apakah DataTable sudah ada, jika ya, hancurkan terlebih dahulu
+        if ($.fn.DataTable.isDataTable('#userDataTable')) {
+            $('#userDataTable').DataTable().destroy();
+        }
+        
         // Inisialisasi DataTable
-        var table = $('#datatable').DataTable({
+        var table = $('#userDataTable').DataTable({
             dom: 'rt<"bottom"ip>',
             pageLength: 10,
             ordering: true,
@@ -226,7 +234,4 @@
         });
     });
 </script>
-
-<!-- App js -->
-<script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection
